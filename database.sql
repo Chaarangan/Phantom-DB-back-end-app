@@ -1,5 +1,6 @@
 CREATE TABLE customers(
     customer_id INT AUTO_INCREMENT,
+    is_active INT NOT NULL,
     address_line_1 VARCHAR(30),
     address_line_2 VARCHAR(30),
     address_line_3 VARCHAR(30),
@@ -8,12 +9,12 @@ CREATE TABLE customers(
     PRIMARY KEY(customer_id)
 );
 
-INSERT INTO `customers` (`customer_id`, `address_line_1`, `address_line_2`, `address_line_3`, `primary_email`, `primary_contact_no`) VALUES
-(1, '1st cross street', 'Germantown', 'Victoria', 'OliverJake@gmail.com', '1234567891'),
-(2, 'Park Avenue', 'Florida', 'Marktown', 'AmeliaMargaret@gmail.com', '9876543211'),
-(3, 'Queens Street', 'Parktown', 'Queensland', 'DamianWilliam@ymail.com', '5432167891'),
-(4, 'Griffith Road', 'Brisbaner', 'Geogiana', 'IslaBethany@outlook.com', '1233214569'),
-(5, 'Nathan Circular', 'Briginton', 'Griffith', 'info@uog.sh', '1234543211');
+INSERT INTO `customers` (`customer_id`, `is_active`, `address_line_1`, `address_line_2`, `address_line_3`, `primary_email`, `primary_contact_no`) VALUES
+(1,0, '1st cross street', 'Germantown', 'Victoria', 'OliverJake@gmail.com', '1234567891'),
+(2,0, 'Park Avenue', 'Florida', 'Marktown', 'AmeliaMargaret@gmail.com', '9876543211'),
+(3,0, 'Queens Street', 'Parktown', 'Queensland', 'DamianWilliam@ymail.com', '5432167891'),
+(4,0, 'Griffith Road', 'Brisbaner', 'Geogiana', 'IslaBethany@outlook.com', '1233214569'),
+(5,0, 'Nathan Circular', 'Briginton', 'Griffith', 'info@uog.sh', '1234543211');
 
 CREATE TABLE customer_emails(  
     customer_id INT NOT NULL,
@@ -91,58 +92,60 @@ INSERT INTO `customer_logins` (`customer_id`, `username`, `password`, `recovery_
 
 CREATE TABLE branches(
     branch_id INT AUTO_INCREMENT,
+    is_active INT NOT NULL,
     branch_name VARCHAR(20),
     location VARCHAR(20),
     PRIMARY KEY(branch_id)
 );
 
 
-INSERT INTO branches(branch_name,location)  VALUES
-('Head Office Victoria','Victoria'),
-('Anse A La Mouche','Anse A La Mouche'),
-('Anse Aux Pins','Anse Aux Pins'),
-('Anse Boileau','Anse Boileau'),
-('Anse Etoile','Anse Etoile'),
-('Anse Kerlan','Anse Kerlan'),
-('Anse Possession','Anse Possession'),
-('Anse Royale','Anse Royale'),
-('Anse Volbert Village','Anse Volbert Village'),
-('Au Cap','Au Cap'),
-('Baie Lazare Mahe','Baie Lazare Mahe'),
-('Baie Sainte Anne','Baie Sainte Anne'),
-('Baie St Anne','Baie St Anne'),
-('Beau Vallon','Beau Vallon'),
-('Bel Ombre','Bel Ombre'),
-('Bird Island','Bird Island'),
-('Cerf Island','Cerf Island'),
-('Cousine','Cousine'),
-('De Quincey Village','De Quincey Village'),
-('Denis Island','Denis Island'),
-('Desroches','Desroches'),
-('Eden Island','Eden Island'),
-('Felicite','Felicite'),
-('Fregate Island','Fregate Island'),
-('Glacis','Glacis'),
-('Grand Anse','Grand Anse'),
-('Grandanse','Grandanse'),
-('Grandanse Praslin','Grandanse Praslin'),
-('La Digue','La Digue'),
-('La Reunion','La Reunion'),
-('Machabee','Machabee'),
-('Mahe','Mahe'),
-('North Island','North Island'),
-('Pinte Au Sel','Pinte Au Sel'),
-('Pointe Au Sel','Pointe Au Sel'),
-('Pointe Larue','Pointe Larue'),
-('Port Glaud','Port Glaud'),
-('Praslin','Praslin'),
-('Silhouette Island','Silhouette Island'),
-('Takamaka','Takamaka');
+INSERT INTO branches(is_active,branch_name,location)  VALUES
+(0,'Head Office Victoria','Victoria'),
+(0,'Anse A La Mouche','Anse A La Mouche'),
+(0,'Anse Aux Pins','Anse Aux Pins'),
+(0,'Anse Boileau','Anse Boileau'),
+(0,'Anse Etoile','Anse Etoile'),
+(0,'Anse Kerlan','Anse Kerlan'),
+(0,'Anse Possession','Anse Possession'),
+(0,'Anse Royale','Anse Royale'),
+(0,'Anse Volbert Village','Anse Volbert Village'),
+(0,'Au Cap','Au Cap'),
+(0,'Baie Lazare Mahe','Baie Lazare Mahe'),
+(0,'Baie Sainte Anne','Baie Sainte Anne'),
+(0,'Baie St Anne','Baie St Anne'),
+(0,'Beau Vallon','Beau Vallon'),
+(0,'Bel Ombre','Bel Ombre'),
+(0,'Bird Island','Bird Island'),
+(0,'Cerf Island','Cerf Island'),
+(0,'Cousine','Cousine'),
+(0,'De Quincey Village','De Quincey Village'),
+(0,'Denis Island','Denis Island'),
+(0,'Desroches','Desroches'),
+(0,'Eden Island','Eden Island'),
+(0,'Felicite','Felicite'),
+(0,'Fregate Island','Fregate Island'),
+(0,'Glacis','Glacis'),
+(0,'Grand Anse','Grand Anse'),
+(0,'Grandanse','Grandanse'),
+(0,'Grandanse Praslin','Grandanse Praslin'),
+(0,'La Digue','La Digue'),
+(0,'La Reunion','La Reunion'),
+(0,'Machabee','Machabee'),
+(0,'Mahe','Mahe'),
+(0,'North Island','North Island'),
+(0,'Pinte Au Sel','Pinte Au Sel'),
+(0,'Pointe Au Sel','Pointe Au Sel'),
+(0,'Pointe Larue','Pointe Larue'),
+(0,'Port Glaud','Port Glaud'),
+(0,'Praslin','Praslin'),
+(0,'Silhouette Island','Silhouette Island'),
+(0,'Takamaka','Takamaka');
 
 
 CREATE TABLE employees(
     employee_id INT AUTO_INCREMENT,
     first_name VARCHAR(20),
+    is_active INT NOT NULL,
     middle_name VARCHAR(20),
     last_name VARCHAR(20),
     address VARCHAR(80),
@@ -155,11 +158,11 @@ CREATE TABLE employees(
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/
 );
 
-INSERT INTO `employees` (`employee_id`, `first_name`, `middle_name`, `last_name`, `address`, `nic`, `dob`, `gender`, `primary_contact_no`, `branch_id`) VALUES
-(1, 'John', 'Aniston', 'Smith', '123,Albert St, Victoria, Seychelles', '903611178V', '1969-12-26', '1', '0766220249', 1),
-(2, 'Emma', 'Ruthann', 'Marasco', '21,Capital City, Independence Ave, Seychelles', '933611178V', '1997-11-26', '2', '0716220249', 1),
-(3, 'Theresa', 'Amelia', 'May', '26,Park Road,Virginia', '697911178V', '1969-02-23', '2', '0766220249', 11),
-(4, 'Albert', 'William', 'Brethan', '12,German Town,New South Wales', '983672354V', '1998-01-08', '1', '0717303215', 11);
+INSERT INTO `employees` (`employee_id`, `is_active`, `first_name`, `middle_name`, `last_name`, `address`, `nic`, `dob`, `gender`, `primary_contact_no`, `branch_id`) VALUES
+(1,0, 'John', 'Aniston', 'Smith', '123,Albert St, Victoria, Seychelles', '903611178V', '1969-12-26', '1', '0766220249', 1),
+(2,0, 'Emma', 'Ruthann', 'Marasco', '21,Capital City, Independence Ave, Seychelles', '933611178V', '1997-11-26', '2', '0716220249', 1),
+(3,0, 'Theresa', 'Amelia', 'May', '26,Park Road,Virginia', '697911178V', '1969-02-23', '2', '0766220249', 11),
+(4,0, 'Albert', 'William', 'Brethan', '12,German Town,New South Wales', '983672354V', '1998-01-08', '1', '0717303215', 11);
 
 
 CREATE TABLE employee_contact_nos( 
@@ -207,6 +210,7 @@ INSERT INTO `clerks` (`employee_id`) VALUES
 
 CREATE TABLE accounts(
     account_no BIGINT AUTO_INCREMENT,
+    is_active INT NOT NULL,
     balance FLOAT,
     primary_customer_id INT,    
     primary_branch_id INT,
@@ -219,14 +223,14 @@ CREATE TABLE accounts(
 ALTER TABLE accounts AUTO_INCREMENT=22601003929;
 
 
-INSERT INTO `accounts` (`account_no`, `balance`, `primary_customer_id`, `primary_branch_id`, `account_status`, `date_created`) VALUES
-(22601003929, -1800, 5, 1, 'Active', '2020-01-02 00:17:47'),
-(22601003930, 0, 1, 1, 'Active', '2020-01-02 00:19:56'),
-(22601003931, 0, 2, 1, 'Active', '2020-01-02 00:20:38'),
-(22601003932, 0, 3, 1, 'Active', '2020-01-02 00:21:56'),
-(22601003933, 0, 4, 1, 'Active', '2020-01-02 00:22:50'),
-(22601003934, 0, 3, 1, 'Active', '2020-01-02 00:23:27'),
-(22601003935, -900, 4, 1, 'Active', '2020-01-02 00:26:49');
+INSERT INTO `accounts` (`account_no`,`is_active`, `balance`, `primary_customer_id`, `primary_branch_id`, `account_status`, `date_created`) VALUES
+(22601003929,0, -1800, 5, 1, 'Active', '2020-01-02 00:17:47'),
+(22601003930,0, 0, 1, 1, 'Active', '2020-01-02 00:19:56'),
+(22601003931,0, 0, 2, 1, 'Active', '2020-01-02 00:20:38'),
+(22601003932,0, 0, 3, 1, 'Active', '2020-01-02 00:21:56'),
+(22601003933,0, 0, 4, 1, 'Active', '2020-01-02 00:22:50'),
+(22601003934,0, 0, 3, 1, 'Active', '2020-01-02 00:23:27'),
+(22601003935,0, -900, 4, 1, 'Active', '2020-01-02 00:26:49');
 
 CREATE TABLE account_branches(   
     account_no BIGINT NOT NULL,       
@@ -298,6 +302,7 @@ INSERT INTO `checking_accounts` (`account_no`) VALUES
 CREATE TABLE checkbooks(
     checkbook_number INT AUTO_INCREMENT,
     account_no BIGINT NOT NULL,
+    is_active INT NOT NULL,
     issued_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     number_of_pages INT NOT NULL,
     starting_check_number INT NOT NULL,
@@ -305,9 +310,9 @@ CREATE TABLE checkbooks(
     PRIMARY KEY(checkbook_number)
 );
  
- INSERT INTO `checkbooks` (`checkbook_number`, `account_no`, `issued_date`, `number_of_pages`, `starting_check_number`) VALUES
-(1, 22601003929, '2020-01-01 19:06:05', 100, 20200102),
-(2, 22601003935, '2020-01-01 19:07:24', 50, 20200202);
+ INSERT INTO `checkbooks` (`checkbook_number`, `is_active`, `account_no`, `issued_date`, `number_of_pages`, `starting_check_number`) VALUES
+(1,0, 22601003929, '2020-01-01 19:06:05', 100, 20200102),
+(2,0, 22601003935, '2020-01-01 19:07:24', 50, 20200202);
 
 
 CREATE TABLE savings_account_plans(
@@ -402,6 +407,7 @@ CREATE TABLE loan_types(
 CREATE TABLE requested_loans(
     request_id INT AUTO_INCREMENT,      
     account_no BIGINT NOT NULL,
+    is_active INT NOT NULL,
     amount FLOAT NOT NULL,
     branch_id INT,
     time_period INT NOT NULL,
@@ -417,6 +423,7 @@ CREATE TABLE requested_loans(
 CREATE TABLE loans(
     loan_id BIGINT AUTO_INCREMENT,
     account_no BIGINT,  
+    is_active INT NOT NULL,
     loan_type INT,
     amount FLOAT,
     branch_id INT,
