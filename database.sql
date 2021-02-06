@@ -1,5 +1,5 @@
 CREATE TABLE customers(
-    customer_id INT AUTO_INCREMENT,
+    customer_id INT NOT NULL AUTO_INCREMENT,
     is_active INT NOT NULL,
     address_line_1 VARCHAR(30),
     address_line_2 VARCHAR(30),
@@ -29,7 +29,7 @@ CREATE TABLE customer_contact_nos(
 );
 
 CREATE TABLE individuals(
-    customer_id INT,
+    customer_id INT NOT NULL,
     first_name VARCHAR(20),
     last_name VARCHAR(20),
     middle_name VARCHAR(20),
@@ -47,7 +47,7 @@ INSERT INTO `individuals` (`customer_id`, `first_name`, `last_name`, `middle_nam
 (4, 'Isla', 'Bethany', 'Sophia', '973611178V', '1989-08-15', '2');
 
 CREATE TABLE organizations(
-    customer_id INT,
+    customer_id INT NOT NULL,
     name VARCHAR(50) NOT NULL,
     bussiness_registration_number VARCHAR(20),
     PRIMARY KEY(customer_id),
@@ -58,8 +58,8 @@ INSERT INTO `organizations` (`customer_id`, `name`, `bussiness_registration_numb
 (5, 'University of Griffith', '22601929');
 
 CREATE TABLE organization_individuals(
-    organization_id INT,
-    individual_id INT,
+    organization_id INT NOT NULL,
+    individual_id INT NOT NULL,
     FOREIGN KEY (organization_id) REFERENCES organizations(customer_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (individual_id) REFERENCES individuals(customer_id) /*ON DELETE SET NULL*/
 );
@@ -72,8 +72,8 @@ INSERT INTO `organization_individuals` (`organization_id`, `individual_id`) VALU
 
 
 CREATE TABLE customer_logins(
-    customer_id INT,
-    username VARCHAR(50),
+    customer_id INT NOT NULL,
+    username VARCHAR(50) NOT NULL,
     password VARCHAR(255) NOT NULL,
     recovery_contact_no VARCHAR(10) NOT NULL,
     recovery_email VARCHAR(50) NOT NULL,
@@ -91,13 +91,13 @@ INSERT INTO `customer_logins` (`customer_id`, `username`, `password`, `recovery_
 
 
 CREATE TABLE branches(
-    branch_id INT AUTO_INCREMENT,
+    branch_id INT NOT NULL AUTO_INCREMENT,
     is_active INT NOT NULL,
     branch_name VARCHAR(20),
     location VARCHAR(20),
     PRIMARY KEY(branch_id)
 );
-
+ALTER TABLE branches AUTO_INCREMENT=1;
 
 INSERT INTO branches(is_active,branch_name,location)  VALUES
 (0,'Head Office Victoria','Victoria'),
@@ -143,7 +143,7 @@ INSERT INTO branches(is_active,branch_name,location)  VALUES
 
 
 CREATE TABLE employees(
-    employee_id INT AUTO_INCREMENT,
+    employee_id INT NOT NULL AUTO_INCREMENT,
     first_name VARCHAR(20),
     is_active INT NOT NULL,
     middle_name VARCHAR(20),
@@ -153,7 +153,7 @@ CREATE TABLE employees(
     dob DATE,
     gender INT(1),
     primary_contact_no VARCHAR(10) NOT NULL,
-    branch_id INT,
+    branch_id INT NOT NULL,
     PRIMARY KEY(employee_id),
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/
 );
@@ -170,9 +170,10 @@ CREATE TABLE employee_contact_nos(
     contact_no VARCHAR(10) NOT NULL,
     FOREIGN KEY (employee_id) REFERENCES employees(employee_id) /*ON DELETE SET NULL*/
 );
+
 CREATE TABLE employee_logins(
-    employee_id INT,
-    username VARCHAR(50),
+    employee_id INT NOT NULL,
+    username VARCHAR(50) NOT NULL,
     password VARCHAR(100),
     recovery_contact_no VARCHAR(10),
     recovery_email VARCHAR(50),
@@ -189,7 +190,7 @@ INSERT INTO `employee_logins` (`employee_id`, `username`, `password`, `recovery_
 
 
 CREATE TABLE managers(
-    employee_id INT,
+    employee_id INT NOT NULL,
     PRIMARY KEY(employee_id),
     FOREIGN KEY (employee_id) REFERENCES employees(employee_id) /*ON DELETE SET NULL*/
 );
@@ -199,7 +200,7 @@ INSERT INTO `managers` (`employee_id`) VALUES
 (3);
 
 CREATE TABLE clerks(
-    employee_id INT,
+    employee_id INT NOT NULL,
     PRIMARY KEY(employee_id),
     FOREIGN KEY (employee_id) REFERENCES employees(employee_id) /*ON DELETE SET NULL*/
 );
@@ -209,11 +210,11 @@ INSERT INTO `clerks` (`employee_id`) VALUES
 (4);
 
 CREATE TABLE accounts(
-    account_no BIGINT AUTO_INCREMENT,
+    account_no BIGINT NOT NULL AUTO_INCREMENT,
     is_active INT NOT NULL,
     balance FLOAT,
-    primary_customer_id INT,    
-    primary_branch_id INT,
+    primary_customer_id INT NOT NULL,    
+    primary_branch_id INT NOT NULL,
     date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (primary_branch_id) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (primary_customer_id) REFERENCES customers(customer_id) /*ON DELETE SET NULL*/,
@@ -288,7 +289,7 @@ INSERT INTO `customer_accounts` (`customer_id`, `account_no`) VALUES
 
 
 CREATE TABLE checking_accounts( 
-    account_no BIGINT,
+    account_no BIGINT NOT NULL,
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
     PRIMARY KEY(account_no)
 );
@@ -299,7 +300,7 @@ INSERT INTO `checking_accounts` (`account_no`) VALUES
 
 
 CREATE TABLE checkbooks(
-    checkbook_number INT AUTO_INCREMENT,
+    checkbook_number INT NOT NULL AUTO_INCREMENT,
     account_no BIGINT NOT NULL,
     is_active INT NOT NULL,
     issued_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -315,7 +316,7 @@ CREATE TABLE checkbooks(
 
 
 CREATE TABLE savings_account_plans(
-    plan_id INT,
+    plan_id INT NOT NULL,
     account_plan VARCHAR(10),
     minimum_balance FLOAT,
     interest FLOAT,
@@ -331,9 +332,9 @@ INSERT INTO `savings_account_plans` (`plan_id`, `account_plan`, `minimum_balance
 
 
 CREATE TABLE savings_accounts(
-    account_no BIGINT,
+    account_no BIGINT NOT NULL,
     number_of_withdrawals INT CHECK (Number_of_Withdrawals <= 5),
-    account_plan_id INT,
+    account_plan_id INT NOT NULL,
     FOREIGN KEY (account_plan_id) REFERENCES savings_account_plans(plan_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
     PRIMARY KEY(account_no)
@@ -347,7 +348,7 @@ INSERT INTO `savings_accounts` (`account_no`, `number_of_withdrawals`, `account_
 (22601003934, 0, 1);
 
 CREATE TABLE child_savings_accounts(
-    account_no BIGINT,
+    account_no BIGINT NOT NULL,
     first_name VARCHAR(20),
     middle_name VARCHAR(20),
     last_name VARCHAR(20),
@@ -375,22 +376,22 @@ CREATE TABLE transaction_details(
 );
 
 CREATE TABLE bank_transactions(
-    transaction_id INT PRIMARY KEY,
+    transaction_id INT NOT NULL PRIMARY KEY,
     FOREIGN KEY (transaction_id) REFERENCES transaction_details(transaction_id) /*ON DELETE SET NULL*/
 );
 
 
 
 CREATE TABLE atm_withdrawals(
-    atm_transaction_id INT AUTO_INCREMENT,
-	transaction_id INT,
-    atm_id INT,
+    atm_transaction_id INT NOT NULL AUTO_INCREMENT,
+	transaction_id INT NOT NULL,
+    atm_id INT NOT NULL,
 	PRIMARY KEY(atm_transaction_id),
     FOREIGN KEY (transaction_id) REFERENCES transaction_details(transaction_id) /*ON DELETE SET NULL*/
 );
 
 CREATE TABLE online_transactions(
-    online_transaction_id INT AUTO_INCREMENT,
+    online_transaction_id INT NOT NULL AUTO_INCREMENT,
 	withdrawal_id INT,
 	deposit_id INT,
     FOREIGN KEY (withdrawal_id) REFERENCES transaction_details(transaction_id) /*ON DELETE SET NULL*/,
@@ -398,37 +399,37 @@ CREATE TABLE online_transactions(
     PRIMARY KEY(online_transaction_id)
 );
 CREATE TABLE loan_types( 
-    type_id INT,       
+    type_id INT NOT NULL,       
     type_name VARCHAR(15),
     interest_rate FLOAT NOT NULL,
     PRIMARY KEY (type_id)
 );
+
 CREATE TABLE requested_loans(
     request_id INT AUTO_INCREMENT,      
     account_no BIGINT NOT NULL,
-    is_active INT NOT NULL,
     amount FLOAT NOT NULL,
-    branch_id INT,
+    branch_id INT NOT NULL,
     time_period INT NOT NULL,
     installment FLOAT NOT NULL,
     requested_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     requested_by INT,
-    request_status VARCHAR(10),
+    requested_loan_status INT NOT NULL,
     FOREIGN KEY (requested_by) REFERENCES clerks(employee_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/,
     PRIMARY KEY (request_id)
 );
 CREATE TABLE loans(
-    loan_id BIGINT AUTO_INCREMENT,
-    account_no BIGINT,  
-    is_active INT NOT NULL,
+    loan_id BIGINT NOT NULL AUTO_INCREMENT,
+    account_no BIGINT NOT NULL,  
     loan_type INT,
     amount FLOAT,
     branch_id INT,
-    Date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     time_period INT,
     installment FLOAT,
+    loan_status INT NOT NULL,
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (loan_type) REFERENCES loan_types(type_id) /*ON DELETE SET NULL*/,
@@ -437,8 +438,8 @@ CREATE TABLE loans(
 ALTER TABLE loans AUTO_INCREMENT=11301003989;
 
 CREATE TABLE bank_visit_loans( 
-    loan_id BIGINT,
-    Approved_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    loan_id BIGINT NOT NULL,
+    approved_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     approved_by INT,
     requested_by INT,
     FOREIGN KEY (loan_id) REFERENCES loans(loan_id) /*ON DELETE SET NULL*/,
@@ -447,7 +448,7 @@ CREATE TABLE bank_visit_loans(
 );
 
 CREATE TABLE fixed_deposit_plans(
-    plan_id INT,
+    plan_id INT NOT NULL,
     time_period VARCHAR(10) NOT NULL,
     interest FLOAT NOT NULL,
     PRIMARY KEY (plan_id)
@@ -460,12 +461,13 @@ INSERT INTO `fixed_deposit_plans` (`plan_id`, `time_period`, `interest`) VALUES
 
 
 CREATE TABLE fixed_deposits(
-    fd_no BIGINT AUTO_INCREMENT,
+    fd_no BIGINT NOT NULL AUTO_INCREMENT,
     account_no BIGINT NOT NULL,
     amount FLOAT NOT NULL,
     date_opened TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     plan_id INT NOT NULL,
-    transaction_id INT,
+    transaction_id INT NOT NULL,
+    fd_status INT NOT NULL,
     FOREIGN KEY (plan_id) REFERENCES fixed_deposit_plans(plan_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (account_no) REFERENCES savings_accounts(account_no) /*ON DELETE SET NULL*/,
     FOREIGN KEY (transaction_id) REFERENCES online_transactions(online_transaction_id) /*ON DELETE SET NULL*/,
@@ -474,7 +476,7 @@ CREATE TABLE fixed_deposits(
 ALTER TABLE fixed_deposits AUTO_INCREMENT=11201003969;
 
 CREATE TABLE online_loans( 
-    loan_id BIGINT,
+    loan_id BIGINT NOT NULL,
     fd_no BIGINT NOT NULL,
     FOREIGN KEY (loan_id) REFERENCES loans(loan_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (fd_no) REFERENCES fixed_deposits(fd_no) /*ON DELETE SET NULL*/
@@ -492,6 +494,7 @@ CREATE TABLE loan_installment_banks(
 CREATE TABLE loan_arrears(
     loan_id BIGINT NOT NULL,
     due_date DATE,
+    arrear_status INT NOT NULL,
     FOREIGN KEY (loan_id) REFERENCES loans(loan_id) /*ON DELETE SET NULL*/,
     PRIMARY KEY (loan_id,due_date)
 );
