@@ -214,7 +214,6 @@ CREATE TABLE accounts(
     balance FLOAT,
     primary_customer_id INT,    
     primary_branch_id INT,
-    account_status VARCHAR(10),      
     date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (primary_branch_id) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (primary_customer_id) REFERENCES customers(customer_id) /*ON DELETE SET NULL*/,
@@ -223,14 +222,14 @@ CREATE TABLE accounts(
 ALTER TABLE accounts AUTO_INCREMENT=22601003929;
 
 
-INSERT INTO `accounts` (`account_no`,`is_active`, `balance`, `primary_customer_id`, `primary_branch_id`, `account_status`, `date_created`) VALUES
-(22601003929,0, -1800, 5, 1, 'Active', '2020-01-02 00:17:47'),
-(22601003930,0, 0, 1, 1, 'Active', '2020-01-02 00:19:56'),
-(22601003931,0, 0, 2, 1, 'Active', '2020-01-02 00:20:38'),
-(22601003932,0, 0, 3, 1, 'Active', '2020-01-02 00:21:56'),
-(22601003933,0, 0, 4, 1, 'Active', '2020-01-02 00:22:50'),
-(22601003934,0, 0, 3, 1, 'Active', '2020-01-02 00:23:27'),
-(22601003935,0, -900, 4, 1, 'Active', '2020-01-02 00:26:49');
+INSERT INTO `accounts` (`account_no`,`is_active`, `balance`, `primary_customer_id`, `primary_branch_id`, `date_created`) VALUES
+(22601003929,0, -1800, 5, 1, '2020-01-02 00:17:47'),
+(22601003930,0, 0, 1, 1, '2020-01-02 00:19:56'),
+(22601003931,0, 0, 2, 1, '2020-01-02 00:20:38'),
+(22601003932,0, 0, 3, 1, '2020-01-02 00:21:56'),
+(22601003933,0, 0, 4, 1, '2020-01-02 00:22:50'),
+(22601003934,0, 0, 3, 1, '2020-01-02 00:23:27'),
+(22601003935,0, -900, 4, 1,'2020-01-02 00:26:49');
 
 CREATE TABLE account_branches(   
     account_no BIGINT NOT NULL,       
