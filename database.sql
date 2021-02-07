@@ -310,7 +310,7 @@ CREATE TABLE checkbooks(
     PRIMARY KEY(checkbook_number)
 );
  
- INSERT INTO `checkbooks` (`checkbook_number`, `is_active`, `account_no`, `issued_date`, `number_of_pages`, `starting_check_number`) VALUES
+INSERT INTO `checkbooks` (`checkbook_number`, `is_active`, `account_no`, `issued_date`, `number_of_pages`, `starting_check_number`) VALUES
 (1,0, 22601003929, '2020-01-01 19:06:05', 100, 20200102),
 (2,0, 22601003935, '2020-01-01 19:07:24', 50, 20200202);
 
