@@ -1,8 +1,8 @@
-const homeRoutes = require("./apiHome");
+const managerRoutes = require("./manager");
 
 
 const endPointsHandler = (app) => {
-  app.use("/api/", homeRoutes);
+  app.use("/api/manager/", managerRoutes);
 };
 
 module.exports = { endPointsHandler };
