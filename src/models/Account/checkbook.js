@@ -2,42 +2,39 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../../helpers/sequelizer");
 const { Sequelize } = require("../../helpers/sequelizer");
 
-const customers = sequelize.define(
-  "customers",
+const checkbooks = sequelize.define(
+  "checkbooks",
   {
-    customer_id : {
+    checkbook_number: {
       type: DataTypes.INTEGER,
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
     },
-    is_active : {
+    account_no: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
+    is_active: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    address_line_1 : {
-      type: DataTypes.STRING(30),
+    issued_date: {
+      type: DataTypes.DATE,
       allowNull: false,
     },
-    address_line_2 : {
-      type: DataTypes.STRING(30),
-    },
-    address_line_3 : {
-      type: DataTypes.STRING(30),
-    },
-    primary_email : {
-      type: DataTypes.STRIN(50),
+    number_of_pages: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
-    primary_contact_no : {
-      type: DataTypes.STRING(10),
+    starting_check_number: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
-   
   },
   {
     timestamps: false,
   }
 );
 
-module.exports = customers;
+module.exports = checkbooks;
