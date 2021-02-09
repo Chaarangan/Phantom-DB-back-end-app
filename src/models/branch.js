@@ -1,3 +1,4 @@
+const { DataTypes } = require("sequelize");
 const sequelize = require("../helpers/sequelizer");
 
 const branches = sequelize.define(
@@ -7,6 +8,7 @@ const branches = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
+      autoIncrement: true,
     },
     is_active: {
       type: DataTypes.INTEGER,
@@ -14,12 +16,10 @@ const branches = sequelize.define(
     },
     branch_name: {
      type: DataTypes.STRING,
-     allowNull: false,
     },
     location: {
         type: DataTypes.STRING,
-        allowNull: false,
-      },
+    },
   },
   {
     timestamps: false,

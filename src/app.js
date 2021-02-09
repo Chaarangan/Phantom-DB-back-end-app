@@ -2,16 +2,14 @@ const config = require('./config');
 const loaders = require('./loaders');
 const express = require('express');
 const routes = require('./api');
-const http = require('http');
 const apiErrorHandler = require('./helpers/apiErrorHandler');
 
 async function startServer() {
 
     const app = express();
-    const server = http.createServer(app);
 
     await loaders({ expressApp: app });
-
+    
     //handle routes
     routes.endPointsHandler(app);
 
@@ -31,11 +29,10 @@ async function startServer() {
         saveUninitialized:false
     }));
     
-
     app.listen(config.port, err => {
         if (err) {
-            console.log(err);
-            return;
+        console.log(err);
+        return;
         }
         console.log(`Your server is ready on port ${config.port}`);
     });
