@@ -4,7 +4,7 @@ const branch = require("../../models/branch");
 
 const getBranches = async(req, res, next) => {
     try {
-        const branches = await branch.findAll();
+        const branches = await sequelize.query("SELECT * FROM `branches`");
         req.branches = branches;
         next();
     } catch (e) {
