@@ -1,7 +1,6 @@
 const sequelize = require("../../helpers/sequelizer");
 const ApiError = require('../../helpers/ApiError');
 const branch = require("../../models/branch");
-const { QueryTypes } = require('sequelize');
 
 const getBranches = async(req, res, next) => {
     try {
