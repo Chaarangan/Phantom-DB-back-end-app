@@ -18,6 +18,10 @@ const login = async (req, res, next) => {
                             await sequelize.query("SELECT * FROM clerks WHERE employee_id = ?", {replacements: [employee_id]}).then(
                                 async (foundUser) => {
                                     if (foundUser[0].length != 0) {
+                                        var token = jwt.sign({ id: foundUser[0][0].employee_id }, config.secret, {
+                                            expiresIn: 86400 // 24 hours
+                                        });
+                                        req.accessToken = token;
                                         req.message = "Sucessfully Logged In!";
                                         next();                                               
                                     }

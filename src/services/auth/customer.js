@@ -15,6 +15,10 @@ const login = async (req, res, next) => {
                             res.status(401).json({ status: "error", message: 'Incorrect Password!'});
                         }
                         else{
+                            var token = jwt.sign({ id: customer_id }, config.secret, {
+                                expiresIn: 86400 // 24 hours
+                            });
+                            req.accessToken = token;
                             req.message = "Sucessfully Logged In!";
                             next();                                               
                         }                              

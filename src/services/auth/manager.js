@@ -1,6 +1,9 @@
 const sequelize = require("../../helpers/sequelizer");
 const ApiError = require('../../helpers/ApiError');
 const bcrypt=require("bcrypt");
+const config = require("../../config/index");
+var jwt = require("jsonwebtoken");
+
 
 const login = async (req, res, next) => {
     try {
@@ -12,12 +15,16 @@ const login = async (req, res, next) => {
                                 password = foundUser[0][0].password;
                         
                         if (!(await bcrypt.compare(req.body.password, password))) {
-                            res.status(401).json({ status: "error", message: 'Incorrect Password!'});
+                            res.status(401).json({ accessToken: null, status: "error", message: 'Incorrect Password!'});
                         }
                         else{
                             await sequelize.query("SELECT * FROM managers WHERE employee_id = ?", {replacements: [employee_id]}).then(
                                 async (foundUser) => {
                                     if (foundUser[0].length != 0) {
+                                        var token = jwt.sign({ id: foundUser[0][0].employee_id }, config.secret, {
+                                            expiresIn: 86400 // 24 hours
+                                        });
+                                        req.accessToken = token;
                                         req.message = "Sucessfully Logged In!";
                                         next();                                               
                                     }

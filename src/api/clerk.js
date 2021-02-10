@@ -12,7 +12,7 @@ const {
 
 // ========= Auth ======= //
 router.post("/login", login, async(req, res) => {
-    res.json({"response": req.message});
+    res.json({"response": req.message, accessToken : req.accessToken});
 });
 
 // ========= Accounts ======= //

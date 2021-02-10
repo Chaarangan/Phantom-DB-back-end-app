@@ -3,6 +3,7 @@ const loaders = require('./loaders');
 const express = require('express');
 const routes = require('./api');
 const apiErrorHandler = require('./helpers/apiErrorHandler');
+const cors = require("cors");
 
 async function startServer() {
 
@@ -22,6 +23,20 @@ async function startServer() {
         extended: true
     }));
     app.use(express.json());
+
+    var corsOptions = {
+        origin: "http://localhost:3000"
+    };
+    app.use(cors(corsOptions));
+
+    app.use(function(req, res, next) {
+        res.header(
+          "Access-Control-Allow-Headers",
+          "x-access-token, Origin, Content-Type, Accept"
+        );
+        next();
+    });
+
     var session = require('express-session');
     app.use(require("express-session")({
         secret:"Charangan",

@@ -1,5 +1,8 @@
 const router = require("express").Router();
-
+const {
+    verifyToken,
+    isAdmin
+} = require("../services/auth/jwt");
 const {
     createEmployee,
     getEmployees,
@@ -20,7 +23,7 @@ router.post("/employees/new", createEmployee, async(req, res) => {
     res.json({"response": req.message});
 });
 
-router.get("/employees/", getEmployees, async(req, res) => {
+router.get("/employees/", verifyToken, isAdmin, getEmployees, async(req, res) => {
     res.json({"response": req.employees});
 });
 
