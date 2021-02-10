@@ -4,6 +4,9 @@ const {
     isAdmin
 } = require("../services/auth/jwt");
 const {
+    login
+} = require("../services/auth/admin");
+const {
     createEmployee,
     getEmployees,
     getEmployeeById,
@@ -17,6 +20,11 @@ const {
 } = require("../services/branch");
 
 
+
+// ========= Auth ======= //
+router.post("/login", login, async(req, res) => {
+    res.json({"response": req.message, accessToken : req.accessToken});
+});
 
 // ========= Employees ======= //
 router.post("/employees/new", createEmployee, async(req, res) => {
