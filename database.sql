@@ -333,7 +333,7 @@ INSERT INTO `savings_account_plans` (`plan_id`, `account_plan`, `minimum_balance
 
 CREATE TABLE savings_accounts(
     account_no BIGINT NOT NULL,
-    number_of_withdrawals INT CHECK (Number_of_Withdrawals <= 5),
+    number_of_withdrawals INT CHECK (number_of_withdrawals <= 5),
     account_plan_id INT NOT NULL,
     FOREIGN KEY (account_plan_id) REFERENCES savings_account_plans(plan_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
@@ -496,6 +496,6 @@ CREATE TABLE loan_arrears(
     due_date DATE,
     arrear_status INT NOT NULL,
     FOREIGN KEY (loan_id) REFERENCES loans(loan_id) /*ON DELETE SET NULL*/,
-    PRIMARY KEY (loan_id,due_date)
+    PRIMARY KEY (arrear_id)
 );
 
