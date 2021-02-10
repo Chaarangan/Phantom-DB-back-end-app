@@ -12,7 +12,17 @@ const getBranches = async(req, res, next) => {
     }
 };
 
-
-module.exports = {
-    getBranches,
+const getBranchById = async(req, res, next) => {
+    try {
+        const branch = await sequelize.query("SELECT * FROM branches WHERE branch_id = ?", {
+            replacements : [req.params.branch_id]
+        });
+        req.branch = branch;
+        next();
+    } catch (e) {
+        next(ApiError.badRequest());
+    }
 };
+
+
+module.exports = { getBranches, getBranchById};

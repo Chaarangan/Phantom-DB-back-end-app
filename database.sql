@@ -496,6 +496,6 @@ CREATE TABLE loan_arrears(
     due_date DATE,
     arrear_status INT NOT NULL,
     FOREIGN KEY (loan_id) REFERENCES loans(loan_id) /*ON DELETE SET NULL*/,
-    PRIMARY KEY (arrear_id)
+    PRIMARY KEY (loan_id,due_date)
 );
 
