@@ -6,15 +6,16 @@ CREATE TABLE customers(
     address_line_3 VARCHAR(30),
     primary_email VARCHAR(50),
     primary_contact_no VARCHAR(10), 
+    customer_type INT NOT NULL,
     PRIMARY KEY(customer_id)
 );
 
-INSERT INTO `customers` (`customer_id`, `is_active`, `address_line_1`, `address_line_2`, `address_line_3`, `primary_email`, `primary_contact_no`) VALUES
-(1,0, '1st cross street', 'Germantown', 'Victoria', 'OliverJake@gmail.com', '1234567891'),
-(2,0, 'Park Avenue', 'Florida', 'Marktown', 'AmeliaMargaret@gmail.com', '9876543211'),
-(3,0, 'Queens Street', 'Parktown', 'Queensland', 'DamianWilliam@ymail.com', '5432167891'),
-(4,0, 'Griffith Road', 'Brisbaner', 'Geogiana', 'IslaBethany@outlook.com', '1233214569'),
-(5,0, 'Nathan Circular', 'Briginton', 'Griffith', 'info@uog.sh', '1234543211');
+INSERT INTO `customers` (`customer_id`, `is_active`, `address_line_1`, `address_line_2`, `address_line_3`, `primary_email`, `primary_contact_no`, `customer_type`) VALUES
+(1,0, '1st cross street', 'Germantown', 'Victoria', 'OliverJake@gmail.com', '1234567891',1),
+(2,0, 'Park Avenue', 'Florida', 'Marktown', 'AmeliaMargaret@gmail.com', '9876543211',1),
+(3,0, 'Queens Street', 'Parktown', 'Queensland', 'DamianWilliam@ymail.com', '5432167891',1),
+(4,0, 'Griffith Road', 'Brisbaner', 'Geogiana', 'IslaBethany@outlook.com', '1233214569',1),
+(5,0, 'Nathan Circular', 'Briginton', 'Griffith', 'info@uog.sh', '1234543211',2);
 
 CREATE TABLE customer_emails(  
     customer_id INT NOT NULL,

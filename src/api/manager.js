@@ -5,17 +5,20 @@ const {
 } = require("../services/auth/jwt");
 const {
     login,
-    logout
+    logout,
+    updateProfile
 } = require("../services/auth/manager");
 const {
-    updateProfile,
     getClerks,
     getClerkById,
-    updateClerkById
-} = require("../services/employee/manager");
+    updateClerkById,
+} = require("../services/employee/manager/clerk");
 const {
     getBranches
 } = require("../services/branch");
+const {
+    createAccount,
+} = require("../services/employee/manager/account");
 
 
 
@@ -30,6 +33,8 @@ router.put("/profile", verifyToken, isManager, updateProfile, async(req, res) =>
     res.status(200).json({response: req.message});
 });
 
+
+// ========= Clerks ======= //
 router.get("/clerks", verifyToken, isManager, getClerks, async(req, res) => {
     res.status(200).json({response: req.clerks});
 });
@@ -47,6 +52,10 @@ router.get("/branches", verifyToken, isManager, getBranches, async(req, res) => 
     res.status(200).json({response: req.branches});
 });
 
+// ========= Accounts ======= //
+router.post("/accounts/new", verifyToken, isManager, createAccount, async(req, res) => {
+    res.status(200).json({response: req.message});
+});
 
 
 
