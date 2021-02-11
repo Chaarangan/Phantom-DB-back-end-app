@@ -1,8 +1,17 @@
 const router = require("express").Router();
-
 const {
-    login
+    verifyToken,
+    isManager
+} = require("../services/auth/jwt");
+const {
+    login,
+    logout
 } = require("../services/auth/manager");
+const {
+    updateProfile,
+    getClerks,
+    getClerkById
+} = require("../services/employee/manager");
 const {
     getBranches
 } = require("../services/branch");
@@ -11,12 +20,29 @@ const {
 
 // ========= Auth ======= //
 router.post("/login", login, async(req, res) => {
-    res.json({"response": req.message});
+    res.status(200).json({response: req.message, accessToken : req.accessToken});
+});
+
+router.get("/logout", logout);
+
+router.put("/profile", verifyToken, isManager, updateProfile, async(req, res) => {
+    res.status(200).json({response: req.message});
+});
+
+router.get("/clerks", verifyToken, isManager, getClerks, async(req, res) => {
+    res.status(200).json({response: req.clerks});
+});
+
+router.get("/clerks/:clerk_id", verifyToken, isManager, getClerkById, async(req, res) => {
+    res.status(200).json({response: req.clerk});
 });
 
 // ========= Branches ======= //
-router.get("/branches", getBranches, async(req, res) => {
-    res.json({"Branches": req.branches});
+router.get("/branches", verifyToken, isManager, getBranches, async(req, res) => {
+    res.status(200).json({response: req.branches});
 });
+
+
+
 
 module.exports = router;

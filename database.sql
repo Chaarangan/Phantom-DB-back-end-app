@@ -162,7 +162,8 @@ INSERT INTO `employees` (`employee_id`, `is_active`, `first_name`, `middle_name`
 (1,0, 'John', 'Aniston', 'Smith', '123,Albert St, Victoria, Seychelles', '903611178V', '1969-12-26', '1', '0766220249', 1),
 (2,0, 'Emma', 'Ruthann', 'Marasco', '21,Capital City, Independence Ave, Seychelles', '933611178V', '1997-11-26', '2', '0716220249', 1),
 (3,0, 'Theresa', 'Amelia', 'May', '26,Park Road,Virginia', '697911178V', '1969-02-23', '2', '0766220249', 11),
-(4,0, 'Albert', 'William', 'Brethan', '12,German Town,New South Wales', '983672354V', '1998-01-08', '1', '0717303215', 11);
+(4,0, 'Albert', 'William', 'Brethan', '12,German Town,New South Wales', '983672354V', '1998-01-08', '1', '0717303215', 11),
+(5,0, 'Admin', 'Admin', 'Admin', 'Mallavi', '123456789v', '1998-08-25', '1', '0771234567', 31);
 
 
 CREATE TABLE employee_contact_nos( 
@@ -186,8 +187,18 @@ INSERT INTO `employee_logins` (`employee_id`, `username`, `password`, `recovery_
 (1, 'john', '8cb2237d0679ca88db6464eac60da96345513964', '0766220249', 'johnsmith@gmail.com', '2020-01-02 00:19:56'),
 (2, 'emma', '8cb2237d0679ca88db6464eac60da96345513964', '0716220249', 'emma@gmail.com', '2020-01-04 00:19:56'),
 (3, 'theresa', 'f2515b5363f697393a46f4641e5c6b5ffc7a1d27', '0717303215', 'theresamay@banka.com', '2020-01-07 00:19:56'),
-(4, 'albert', '198a52ae72c2d5c6f41914d337dc325238f6a53e', '0112816336', 'albertbrethan@yahoo.com', '2020-01-01 00:19:56');
+(4, 'albert', '198a52ae72c2d5c6f41914d337dc325238f6a53e', '0112816336', 'albertbrethan@yahoo.com', '2020-01-01 00:19:56'),
+(5, 'Admin', '$2b$10$7K2t/fzC.sKqpQsNXLNOqOZ/sfeuWN9xF0aHuhKPhu1nPJfSPcU2W', '0112816336', 'albertbrethan@yahoo.com', '2020-01-01 00:19:56');
 
+
+CREATE TABLE admins(
+    employee_id INT NOT NULL,
+    PRIMARY KEY(employee_id),
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id) /*ON DELETE SET NULL*/
+);
+
+INSERT INTO `admins` (`employee_id`) VALUES
+(5);
 
 CREATE TABLE managers(
     employee_id INT NOT NULL,

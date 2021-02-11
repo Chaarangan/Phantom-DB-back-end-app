@@ -1,6 +1,11 @@
 const sequelize = require("../../helpers/sequelizer");
 const ApiError = require('../../helpers/ApiError');
 const bcrypt=require("bcrypt");
+const config = require("../../config/index");
+var jwt = require("jsonwebtoken");
+const date = require('date-and-time');
+const now = new Date();
+
 
 const login = async (req, res, next) => {
     try {
@@ -12,12 +17,16 @@ const login = async (req, res, next) => {
                                 password = foundUser[0][0].password;
                         
                         if (!(await bcrypt.compare(req.body.password, password))) {
-                            res.status(401).json({ status: "error", message: 'Incorrect Password!'});
+                            res.status(401).json({ accessToken: null, response: 'Incorrect Password!'});
                         }
                         else{
-                            await sequelize.query("SELECT * FROM managers WHERE employee_id = ?", {replacements: [employee_id]}).then(
+                            await sequelize.query("SELECT * FROM employees WHERE (employee_id = ? and (employee_id IN (SELECT * FROM managers)))", {replacements: [employee_id]}).then(
                                 async (foundUser) => {
                                     if (foundUser[0].length != 0) {
+                                        var token = jwt.sign({ user: foundUser }, config.secret, {
+                                            expiresIn: 86400 // 24 hours
+                                        });
+                                        req.accessToken = token;
                                         req.message = "Sucessfully Logged In!";
                                         next();                                               
                                     }
@@ -46,4 +55,17 @@ const login = async (req, res, next) => {
 
 };
 
-module.exports = { login };
+const logout = async (req, res, next) => {
+    try {
+        await sequelize.query("UPDATE employee_logins SET last_login = ? WHERE employee_id = ?",
+            {
+                replacements : [ date.format(now, 'YYYY-MM-DD HH:mm:ss'), req.user.employee_id]
+        });
+        res.status(200).json({ accessToken: null, response: 'Loggedout Successfully!'});
+    } catch (e) {
+        console.log(e);
+        next(ApiError.badRequest());
+    }
+};
+
+module.exports = { login, logout };

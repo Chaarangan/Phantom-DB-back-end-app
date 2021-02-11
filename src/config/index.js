@@ -15,6 +15,7 @@ const config = {
     db_dialect : process.env.DB_DIALECT,
 
     react_url : process.env.REACT_URL,
+    secret : process.env.JWT_SECRECT,
 };
 
 module.exports = config;

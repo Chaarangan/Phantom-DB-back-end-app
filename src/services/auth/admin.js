@@ -1,7 +1,11 @@
 const sequelize = require("../../helpers/sequelizer");
 const ApiError = require('../../helpers/ApiError');
 const bcrypt=require("bcrypt");
+const config = require("../../config/index");
+var jwt = require("jsonwebtoken");
 var generator = require('generate-password');
+const date = require('date-and-time');
+const now = new Date();
 
 //mailer
 const nodemailer = require('nodemailer');  
@@ -14,6 +18,66 @@ let transporter = nodemailer.createTransport(smtpTransport({
         pass: 'Bank2021'
       }
 }));
+
+const login = async (req, res, next) => {
+    try {
+        await sequelize.query("SELECT * FROM employee_logins WHERE username = ?", {replacements: [req.body.username]}).then(
+            async (foundUser) => {
+                if (foundUser[0].length != 0) {
+                    try {
+                        const   employee_id = foundUser[0][0].employee_id,
+                                password = foundUser[0][0].password;
+                        
+                        if (!(await bcrypt.compare(req.body.password, password))) {
+                            res.status(401).json({ accessToken: null, status: "error", message: 'Incorrect Password!'});
+                        }
+                        else{
+                            await sequelize.query("SELECT * FROM admins WHERE employee_id = ?", {replacements: [employee_id]}).then(
+                                async (foundUser) => {
+                                    if (foundUser[0].length != 0) {
+                                        var token = jwt.sign({ user: foundUser }, config.secret, {
+                                            expiresIn: 86400 // 24 hours
+                                        });
+                                        req.accessToken = token;
+                                        req.message = "Sucessfully Logged In!";
+                                        next();                                               
+                                    }
+                                    else{
+                                        return res.status(404).json({ response : "No Admin found with this username!" });
+                                    }
+                                                    
+                                }
+                            );
+                        }                                
+                    }
+                    catch (e){
+                        console.log(e);
+                        next(ApiError.badRequest());
+                    }
+                }
+                else {
+                    return res.status(404).json({ response : "No Admin found with this username!" });
+                }
+            }
+        );
+    } catch (e) {
+        console.log(e);
+        next(ApiError.badRequest());
+    }
+};
+
+const logout = async (req, res, next) => {
+    try {
+        await sequelize.query("UPDATE employee_logins SET last_login = ? WHERE employee_id = ?",
+            {
+                replacements : [ date.format(now, 'YYYY-MM-DD HH:mm:ss'), req.userId]
+        });
+        res.status(200).json({ accessToken: null, response: 'Loggedout Successfully!'});
+    } catch (e) {
+        console.log(e);
+        next(ApiError.badRequest());
+    }
+};
 
 const createEmployee = async (req, res, next) => {
     try {
@@ -232,7 +296,7 @@ const sendRandomPassword = async (req, res, next) => {
                                                                     
                                     transporter.sendMail(mailOptions, function(error, info){
                                         if (error) {
-                                            return res.status(401).json({ status : 'error', message : error });
+                                            return res.status(401).json({ response : error });
                                         }
                                         else{
                                             req.message = "Sucessfully Send!";
@@ -259,4 +323,4 @@ const sendRandomPassword = async (req, res, next) => {
 
 };
 
-module.exports = { createEmployee, getEmployees, getEmployeeById, updateEmployeeById, sendRandomPassword };
+module.exports = { login, logout, createEmployee, getEmployees, getEmployeeById, updateEmployeeById, sendRandomPassword };
