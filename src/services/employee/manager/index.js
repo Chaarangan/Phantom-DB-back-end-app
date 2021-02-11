@@ -98,4 +98,38 @@ const getClerkById = async (req, res, next) => {
 
 };
 
-module.exports = { updateProfile, getClerks, getClerkById }
+
+const updateClerkById = async (req, res, next) => {
+    try {
+        await sequelize.query("SELECT * FROM employees WHERE (employee_id = ? and branch_id = ? and (employee_in IN (SELECT * FROM clerks)))", {replacements : [req.params.clerk_id, req.user.branch_id]}).then(
+            async (foundUser) => {
+                if (foundUser[0].length != 0) { 
+                    try {
+                        const   status = req.body.status;
+                        
+                        await sequelize.query("UPDATE employees SET status = ? WHERE employee_id = ?",
+                            {
+                                replacements : [ status, req.params.clerk_id]
+                            });                        
+
+                        req.message = "Updated Sucessfully!";
+                        next();
+
+                    } catch (e) {
+                        console.log(e);
+                        next(ApiError.badRequest());
+                    }              
+                }
+                else {
+                    return res.status(404).json({ response : "No Clerk found!" });
+                }
+            }
+        );
+    } catch (e) {
+        console.log(e);
+        next(ApiError.badRequest());
+    }
+};
+
+
+module.exports = { updateProfile, getClerks, getClerkById, updateClerkById }

@@ -10,7 +10,8 @@ const {
 const {
     updateProfile,
     getClerks,
-    getClerkById
+    getClerkById,
+    updateClerkById
 } = require("../services/employee/manager");
 const {
     getBranches
@@ -34,6 +35,10 @@ router.get("/clerks", verifyToken, isManager, getClerks, async(req, res) => {
 });
 
 router.get("/clerks/:clerk_id", verifyToken, isManager, getClerkById, async(req, res) => {
+    res.status(200).json({response: req.clerk});
+});
+
+router.put("/clerks/:clerk_id", verifyToken, isManager, updateClerkById, async(req, res) => {
     res.status(200).json({response: req.clerk});
 });
 
