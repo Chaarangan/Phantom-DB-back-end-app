@@ -17,7 +17,7 @@ const {
     getBranches
 } = require("../services/branch");
 const {
-    createAccount,
+    createIndividualAccount,
 } = require("../services/employee/manager/account");
 
 
@@ -53,7 +53,7 @@ router.get("/branches", verifyToken, isManager, getBranches, async(req, res) => 
 });
 
 // ========= Accounts ======= //
-router.post("/accounts/new", verifyToken, isManager, createAccount, async(req, res) => {
+router.post("/accounts/new", verifyToken, isManager, createIndividualAccount, async(req, res) => {
     res.status(200).json({response: req.message});
 });
 
