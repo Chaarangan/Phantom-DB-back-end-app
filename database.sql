@@ -511,3 +511,75 @@ CREATE TABLE loan_arrears(
     PRIMARY KEY (loan_id,due_date)
 );
 
+
+
+
+
+
+
+
+
+
+DELIMITER $$
+
+CREATE FUNCTION employeeStatus(
+	status INT
+) 
+RETURNS VARCHAR(20)
+DETERMINISTIC
+BEGIN
+    DECLARE employeeStatus VARCHAR(20);
+
+    IF status == 1 THEN
+		SET employeeStatus = 'OFF';
+    ELSEIF (status == 0 AND THEN
+        SET employeeStatus = 'ON';
+    END IF;
+	RETURN (employeeStatus);
+END; $$
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE TRIGGER CheckBookCharge BEFORE INSERT ON Checkbook
+FOR EACH ROW
+BEGIN 
+UPDATE accounts SET balance=(balance-((NEW.number_of_pages)*18)) WHERE account_no=NEW.account_no;
+END; $$
+DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE FUNCTION getBranch(
+	branch_id INT
+) 
+RETURNS VARCHAR(64)
+DETERMINISTIC
+BEGIN
+    DECLARE branch_name VARCHAR(64);
+
+    SELECT 
+		branch_name
+	INTO branch_name
+    FROM branches
+    WHERE 
+		branch_id = branch_id;
+
+	RETURN (branch_name);
+END; $$
+DELIMITER ;
+
+
+
+CREATE VIEW managerOverview AS 
+select 
+	e.nic, 
+    getBranch(e.branch_id)
+from managers as m
+left join employees as e using(employee_id) 
+LEFT JOIN employee_logins as el using(employee_id)
+group by employee_id;
+
+
+
