@@ -1,6 +1,10 @@
 const sequelize = require("../../helpers/sequelizer");
 const ApiError = require('../../helpers/ApiError');
 const bcrypt=require("bcrypt");
+const config = require("../../config/index");
+var jwt = require("jsonwebtoken");
+const date = require('date-and-time');
+const now = new Date();
 
 const login = async (req, res, next) => {
     try {
@@ -15,7 +19,7 @@ const login = async (req, res, next) => {
                             res.status(401).json({ status: "error", message: 'Incorrect Password!'});
                         }
                         else{
-                            var token = jwt.sign({ id: customer_id }, config.secret, {
+                            var token = jwt.sign({ user: foundUser }, config.secret, {
                                 expiresIn: 86400 // 24 hours
                             });
                             req.accessToken = token;
@@ -40,4 +44,17 @@ const login = async (req, res, next) => {
 
 };
 
-module.exports = { login };
+const logout = async (req, res, next) => {
+    try {
+        await sequelize.query("UPDATE customer_logins SET last_login = ? WHERE customer_id = ?",
+            {
+                replacements : [ date.format(now, 'YYYY-MM-DD HH:mm:ss'), req.user.customer_id]
+        });
+        res.status(200).json({ accessToken: null, response: 'Loggedout Successfully!'});
+    } catch (e) {
+        console.log(e);
+        next(ApiError.badRequest());
+    }
+};
+
+module.exports = { login, logout };

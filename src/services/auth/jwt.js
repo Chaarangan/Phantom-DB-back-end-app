@@ -15,14 +15,14 @@ const verifyToken = (req, res, next) => {
             if (err) {
                 return res.status(401).send({ message: "Unauthorized!" });
             }
-            req.userId = decoded.id;
+            req.user = decoded.user;
             next();
         });
     }
 };
 
 const isAdmin = (req, res, next) => {
-    sequelize.query("SELECT * FROM admins WHERE employee_id = ?", {replacements : [req.userId]}).then(
+    sequelize.query("SELECT * FROM admins WHERE employee_id = ?", {replacements : [req.user.employee_id]}).then(
         async (foundUser) => {
             if (foundUser[0].length == 0) {
                 return res.status(403).json({ response : "Require Admin Role!" });                                               
@@ -36,7 +36,7 @@ const isAdmin = (req, res, next) => {
 
 
 const isManager = (req, res, next) => {
-    sequelize.query("SELECT * FROM managers WHERE employee_id = ?", {replacements : [req.userId]}).then(
+    sequelize.query("SELECT * FROM managers WHERE employee_id = ?", {replacements : [req.user.employee_id]}).then(
         async (foundUser) => {
             if (foundUser[0].length == 0) {
                 return res.status(403).json({ response : "Require Manager Role!" });                                               
@@ -49,7 +49,7 @@ const isManager = (req, res, next) => {
 };
 
 const isClerk = (req, res, next) => {
-    sequelize.query("SELECT * FROM clerks WHERE employee_id = ?", {replacements : [req.userId]}).then(
+    sequelize.query("SELECT * FROM clerks WHERE employee_id = ?", {replacements : [req.user.employee_id]}).then(
         async (foundUser) => {
             if (foundUser[0].length == 0) {
                 return res.status(403).json({ response : "Require Clerk Role!" });                                               
@@ -63,7 +63,7 @@ const isClerk = (req, res, next) => {
 
 
 const isCustomer = (req, res, next) => {
-    sequelize.query("SELECT * FROM customers WHERE customer_id = ?", {replacements : [req.userId]}).then(
+    sequelize.query("SELECT * FROM customers WHERE customer_id = ?", {replacements : [req.user.customer_id]}).then(
         async (foundUser) => {
             if (foundUser[0].length == 0) {
                 return res.status(403).json({ response : "Require Customer Role!" });                                               

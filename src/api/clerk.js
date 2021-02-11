@@ -1,7 +1,8 @@
 const router = require("express").Router();
 
 const {
-    login
+    login,
+    logout
 } = require("../services/auth/clerk.js");
 // const {
 //     createAccount
@@ -12,8 +13,10 @@ const {
 
 // ========= Auth ======= //
 router.post("/login", login, async(req, res) => {
-    res.json({"response": req.message, accessToken : req.accessToken});
+    res.status(200).json({response: req.message, accessToken : req.accessToken});
 });
+
+router.get("/logout", logout);
 
 // ========= Accounts ======= //
 // router.post("/accounts/new", createAccount, async(req, res) => {
@@ -22,7 +25,7 @@ router.post("/login", login, async(req, res) => {
 
 // ========= Branches ======= //
 router.get("/branches", getBranches, async(req, res) => {
-    res.json({"Branches": req.branches});
+    res.status(200).json({response: req.branches});
 });
 
 module.exports = router;
