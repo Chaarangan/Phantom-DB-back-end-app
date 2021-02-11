@@ -4,6 +4,10 @@ const {
     login,
     logout
 } = require("../services/auth/clerk.js");
+const { 
+    verifyToken,
+    isClerk 
+} = require("../services/auth/jwt.js");
 // const {
 //     createAccount
 // } = require("../services/account/index.js");
@@ -16,7 +20,7 @@ router.post("/login", login, async(req, res) => {
     res.status(200).json({response: req.message, accessToken : req.accessToken});
 });
 
-router.get("/logout", logout);
+router.get("/logout", verifyToken, isClerk, logout);
 
 // ========= Accounts ======= //
 // router.post("/accounts/new", createAccount, async(req, res) => {

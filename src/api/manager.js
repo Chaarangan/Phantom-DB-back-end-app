@@ -23,7 +23,7 @@ router.post("/login", login, async(req, res) => {
     res.status(200).json({response: req.message, accessToken : req.accessToken});
 });
 
-router.get("/logout", logout);
+router.get("/logout", verifyToken, isManager, logout);
 
 router.put("/profile", verifyToken, isManager, updateProfile, async(req, res) => {
     res.status(200).json({response: req.message});

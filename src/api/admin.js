@@ -24,7 +24,7 @@ router.post("/login", login, async(req, res) => {
     res.status(200).json({response: req.message, accessToken : req.accessToken});
 });
 
-router.get("/logout", logout);
+router.get("/logout", verifyToken, isAdmin, logout);
 
 // ========= Employees ======= //
 router.post("/employees/new", verifyToken, isAdmin, createEmployee, async(req, res) => {
