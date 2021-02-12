@@ -8,7 +8,7 @@ CREATE TABLE customers(
     primary_contact_no VARCHAR(10), 
     customer_type INT NOT NULL,
     PRIMARY KEY(customer_id)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='customers';
 
 INSERT INTO `customers` (`customer_id`, `is_active`, `address_line_1`, `address_line_2`, `address_line_3`, `primary_email`, `primary_contact_no`, `customer_type`) VALUES
 (1,0, '1st cross street', 'Germantown', 'Victoria', 'OliverJake@gmail.com', '1234567891',1),
@@ -21,13 +21,13 @@ CREATE TABLE customer_emails(
     customer_id INT NOT NULL,
     email VARCHAR(50) NOT NULL,
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id) /*ON DELETE SET NULL*/
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='customer_emails';
 
 CREATE TABLE customer_contact_nos(  
     customer_id INT NOT NULL,
     contact_no VARCHAR(10) NOT NULL,
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id) /*ON DELETE SET NULL*/
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='customer_contact_nos';
 
 CREATE TABLE individuals(
     customer_id INT NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE individuals(
     gender INT(1),
     PRIMARY KEY(customer_id),
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id) /*ON DELETE SET NULL*/
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='individuals';
 
 INSERT INTO `individuals` (`customer_id`, `first_name`, `last_name`, `middle_name`, `nic`, `dob`, `gender`) VALUES
 (1, 'Oliver', 'Jake', 'Noah', '123456789V', '1992-01-02', '1'),
@@ -53,7 +53,7 @@ CREATE TABLE organizations(
     bussiness_registration_number VARCHAR(20),
     PRIMARY KEY(customer_id),
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id) /*ON DELETE SET NULL*/
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='organizations';
 
 INSERT INTO `organizations` (`customer_id`, `name`, `bussiness_registration_number`) VALUES
 (5, 'University of Griffith', '22601929');
@@ -63,7 +63,7 @@ CREATE TABLE organization_individuals(
     individual_id INT NOT NULL,
     FOREIGN KEY (organization_id) REFERENCES organizations(customer_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (individual_id) REFERENCES individuals(customer_id) /*ON DELETE SET NULL*/
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='organization_individuals';
 
 INSERT INTO `organization_individuals` (`organization_id`, `individual_id`) VALUES
 (5, 1),
@@ -81,7 +81,7 @@ CREATE TABLE customer_logins(
     last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY(username),
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id) /*ON DELETE SET NULL*/
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='customer_logins';
 
 INSERT INTO `customer_logins` (`customer_id`, `username`, `password`, `recovery_contact_no`, `recovery_email`, `last_login`) VALUES
 (1, 'oliverjake', '8cb2237d0679ca88db6464eac60da96345513964', '1234567891', 'OliverJake@gmail.com', '2020-01-02 00:19:56'),
@@ -97,7 +97,7 @@ CREATE TABLE branches(
     branch_name VARCHAR(20),
     location VARCHAR(20),
     PRIMARY KEY(branch_id)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='branches';
 ALTER TABLE branches AUTO_INCREMENT=1;
 
 INSERT INTO branches(is_active,branch_name,location)  VALUES
@@ -157,7 +157,7 @@ CREATE TABLE employees(
     branch_id INT NOT NULL,
     PRIMARY KEY(employee_id),
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='employees';
 
 INSERT INTO `employees` (`employee_id`, `is_active`, `first_name`, `middle_name`, `last_name`, `address`, `nic`, `dob`, `gender`, `primary_contact_no`, `branch_id`) VALUES
 (1,0, 'John', 'Aniston', 'Smith', '123,Albert St, Victoria, Seychelles', '903611178V', '1969-12-26', '1', '0766220249', 1),
@@ -171,7 +171,7 @@ CREATE TABLE employee_contact_nos(
     employee_id INT NOT NULL,
     contact_no VARCHAR(10) NOT NULL,
     FOREIGN KEY (employee_id) REFERENCES employees(employee_id) /*ON DELETE SET NULL*/
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='employee_contact_nos';
 
 CREATE TABLE employee_logins(
     employee_id INT NOT NULL,
@@ -182,21 +182,22 @@ CREATE TABLE employee_logins(
     last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY(username),
     FOREIGN KEY (employee_id) REFERENCES employees(employee_id) /*ON DELETE SET NULL*/
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='employee_logins';
 
 INSERT INTO `employee_logins` (`employee_id`, `username`, `password`, `recovery_contact_no`, `recovery_email`, `last_login`) VALUES
 (1, 'john', '8cb2237d0679ca88db6464eac60da96345513964', '0766220249', 'johnsmith@gmail.com', '2020-01-02 00:19:56'),
 (2, 'emma', '8cb2237d0679ca88db6464eac60da96345513964', '0716220249', 'emma@gmail.com', '2020-01-04 00:19:56'),
-(3, 'theresa', 'f2515b5363f697393a46f4641e5c6b5ffc7a1d27', '0717303215', 'theresamay@banka.com', '2020-01-07 00:19:56'),
-(4, 'albert', '198a52ae72c2d5c6f41914d337dc325238f6a53e', '0112816336', 'albertbrethan@yahoo.com', '2020-01-01 00:19:56'),
-(5, 'Admin', '$2b$10$7K2t/fzC.sKqpQsNXLNOqOZ/sfeuWN9xF0aHuhKPhu1nPJfSPcU2W', '0112816336', 'albertbrethan@yahoo.com', '2020-01-01 00:19:56');
+(3, 'Manager', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '0717303215', 'theresamay@banka.com', '2020-01-07 00:19:56'),
+(4, 'Clerk', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '0112816336', 'albertbrethan@yahoo.com', '2020-01-01 00:19:56'),
+(5, 'Admin', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '0112816336', 'albertbrethan@yahoo.com', '2020-01-01 00:19:56');
+
 
 
 CREATE TABLE admins(
     employee_id INT NOT NULL,
     PRIMARY KEY(employee_id),
     FOREIGN KEY (employee_id) REFERENCES employees(employee_id) /*ON DELETE SET NULL*/
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='admins';
 
 INSERT INTO `admins` (`employee_id`) VALUES
 (5);
@@ -205,7 +206,7 @@ CREATE TABLE managers(
     employee_id INT NOT NULL,
     PRIMARY KEY(employee_id),
     FOREIGN KEY (employee_id) REFERENCES employees(employee_id) /*ON DELETE SET NULL*/
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='managers';
 
 INSERT INTO `managers` (`employee_id`) VALUES
 (1),
@@ -215,7 +216,7 @@ CREATE TABLE clerks(
     employee_id INT NOT NULL,
     PRIMARY KEY(employee_id),
     FOREIGN KEY (employee_id) REFERENCES employees(employee_id) /*ON DELETE SET NULL*/
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='clerks';
 
 INSERT INTO `clerks` (`employee_id`) VALUES
 (2),
@@ -231,7 +232,7 @@ CREATE TABLE accounts(
     FOREIGN KEY (primary_branch_id) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (primary_customer_id) REFERENCES customers(customer_id) /*ON DELETE SET NULL*/,
     PRIMARY KEY(account_no)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='accounts';
 ALTER TABLE accounts AUTO_INCREMENT=22601003929;
 
 
@@ -249,7 +250,7 @@ CREATE TABLE account_branches(
     branch_id INT NOT NULL,
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
     FOREIGN KEY (Branch_ID) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='account_branches';
 
 INSERT INTO `account_branches` (`account_no`, `branch_id`) VALUES
 (22601003929, 1),
@@ -284,7 +285,7 @@ CREATE TABLE customer_accounts(
     account_no BIGINT NOT NULL,
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='customer_accounts';
 
 
 INSERT INTO `customer_accounts` (`customer_id`, `account_no`) VALUES
@@ -304,7 +305,7 @@ CREATE TABLE checking_accounts(
     account_no BIGINT NOT NULL,
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
     PRIMARY KEY(account_no)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='checking_accounts';
 
 INSERT INTO `checking_accounts` (`account_no`) VALUES
 (22601003929),
@@ -320,7 +321,7 @@ CREATE TABLE checkbooks(
     starting_check_number INT NOT NULL,
     FOREIGN KEY (account_no) REFERENCES checking_accounts(account_no) /*ON DELETE SET NULL*/,
     PRIMARY KEY(checkbook_number)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='checkbooks';
  
 INSERT INTO `checkbooks` (`checkbook_number`, `is_active`, `account_no`, `issued_date`, `number_of_pages`, `starting_check_number`) VALUES
 (1,0, 22601003929, '2020-01-01 19:06:05', 100, 20200102),
@@ -333,7 +334,7 @@ CREATE TABLE savings_account_plans(
     minimum_balance FLOAT,
     interest FLOAT,
     PRIMARY KEY (plan_id)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='savings_account_plans';
 
 
 INSERT INTO `savings_account_plans` (`plan_id`, `account_plan`, `minimum_balance`, `interest`) VALUES
@@ -350,7 +351,7 @@ CREATE TABLE savings_accounts(
     FOREIGN KEY (account_plan_id) REFERENCES savings_account_plans(plan_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
     PRIMARY KEY(account_no)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='savings_accounts';
 
 INSERT INTO `savings_accounts` (`account_no`, `number_of_withdrawals`, `account_plan_id`) VALUES
 (22601003930, 0, 3),
@@ -368,7 +369,7 @@ CREATE TABLE child_savings_accounts(
     gender INT(1),
     FOREIGN KEY (account_no) REFERENCES savings_accounts(account_no) /*ON DELETE SET NULL*/,
     PRIMARY KEY(account_no,first_name,middle_name)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='child_savings_accounts';
 
 INSERT INTO `child_savings_accounts` (`account_no`, `first_name`, `middle_name`, `last_name`, `dob`, `gender`) VALUES
 (22601003934, 'Anabella', 'Nicole', 'Rose', '2013-01-23', '2');
@@ -379,18 +380,17 @@ CREATE TABLE transaction_details(
     account_no BIGINT NOT NULL,
     amount FLOAT NOT NULL,
 	withdraw BOOLEAN,
-    balance FLOAT NOT NULL,
     detail VARCHAR(20),
     date_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     teller VARCHAR(20),
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
     PRIMARY KEY(transaction_id)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='transaction_details';
 
 CREATE TABLE bank_transactions(
     transaction_id INT NOT NULL PRIMARY KEY,
     FOREIGN KEY (transaction_id) REFERENCES transaction_details(transaction_id) /*ON DELETE SET NULL*/
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='bank_transactions';
 
 
 
@@ -400,7 +400,7 @@ CREATE TABLE atm_withdrawals(
     atm_id INT NOT NULL,
 	PRIMARY KEY(atm_transaction_id),
     FOREIGN KEY (transaction_id) REFERENCES transaction_details(transaction_id) /*ON DELETE SET NULL*/
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='atm_withdrawals';
 
 CREATE TABLE online_transactions(
     online_transaction_id INT NOT NULL AUTO_INCREMENT,
@@ -409,16 +409,22 @@ CREATE TABLE online_transactions(
     FOREIGN KEY (withdrawal_id) REFERENCES transaction_details(transaction_id) /*ON DELETE SET NULL*/,
 	FOREIGN KEY (deposit_id) REFERENCES transaction_details(transaction_id) /*ON DELETE SET NULL*/,
     PRIMARY KEY(online_transaction_id)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='online_transactions';
+
 CREATE TABLE loan_types( 
     type_id INT NOT NULL,       
     type_name VARCHAR(15),
     interest_rate FLOAT NOT NULL,
     PRIMARY KEY (type_id)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='loan_types';
+
+INSERT INTO loan_types (type_id, type_name, interest_rate) values 
+(1, "Farming Loan", 0.04), 
+(2, "Business Loan", 0.07);
 
 CREATE TABLE requested_loans(
-    request_id INT AUTO_INCREMENT,      
+    request_id INT AUTO_INCREMENT,  
+    loan_type INT,    
     account_no BIGINT NOT NULL,
     amount FLOAT NOT NULL,
     branch_id INT NOT NULL,
@@ -427,11 +433,24 @@ CREATE TABLE requested_loans(
     requested_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     requested_by INT,
     requested_loan_status INT NOT NULL,
+    FOREIGN KEY (loan_type) REFERENCES loan_types(type_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (requested_by) REFERENCES clerks(employee_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/,
     PRIMARY KEY (request_id)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='requested_loans';
+
+INSERT INTO requested_loans (loan_type, account_no, amount, branch_id, time_period, installment, requested_date, requested_by, requested_loan_status) values 
+(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0),
+(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0),
+(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0),
+(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0),
+(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0),
+(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0),
+(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0),
+(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0);
+
+
 CREATE TABLE loans(
     loan_id BIGINT NOT NULL AUTO_INCREMENT,
     account_no BIGINT NOT NULL,  
@@ -446,7 +465,7 @@ CREATE TABLE loans(
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (loan_type) REFERENCES loan_types(type_id) /*ON DELETE SET NULL*/,
     PRIMARY KEY (loan_id)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='loans';
 ALTER TABLE loans AUTO_INCREMENT=11301003989;
 
 CREATE TABLE bank_visit_loans( 
@@ -457,14 +476,14 @@ CREATE TABLE bank_visit_loans(
     FOREIGN KEY (loan_id) REFERENCES loans(loan_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (approved_by) REFERENCES managers(employee_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (requested_by) REFERENCES clerks(employee_id) /*ON DELETE SET NULL*/
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='bank_visit_loans';
 
 CREATE TABLE fixed_deposit_plans(
     plan_id INT NOT NULL,
     time_period VARCHAR(10) NOT NULL,
     interest FLOAT NOT NULL,
     PRIMARY KEY (plan_id)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='fixed_deposit_plans';
 
 INSERT INTO `fixed_deposit_plans` (`plan_id`, `time_period`, `interest`) VALUES
 (1, '6 months', 13),
@@ -484,7 +503,7 @@ CREATE TABLE fixed_deposits(
     FOREIGN KEY (account_no) REFERENCES savings_accounts(account_no) /*ON DELETE SET NULL*/,
     FOREIGN KEY (transaction_id) REFERENCES online_transactions(online_transaction_id) /*ON DELETE SET NULL*/,
     PRIMARY KEY (fd_no)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='fixed_deposits';
 ALTER TABLE fixed_deposits AUTO_INCREMENT=11201003969;
 
 CREATE TABLE online_loans( 
@@ -492,7 +511,9 @@ CREATE TABLE online_loans(
     fd_no BIGINT NOT NULL,
     FOREIGN KEY (loan_id) REFERENCES loans(loan_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (fd_no) REFERENCES fixed_deposits(fd_no) /*ON DELETE SET NULL*/
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='online_loans';
+
+-- pay installments by visiting to the bank
 CREATE TABLE loan_installment_banks(
     installment_id INT AUTO_INCREMENT,
     loan_id BIGINT NOT NULL,
@@ -501,7 +522,7 @@ CREATE TABLE loan_installment_banks(
     paid_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (loan_id) REFERENCES loans(loan_id) /*ON DELETE SET NULL*/,
     PRIMARY KEY (installment_id)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='loan_installment_banks';
 
 CREATE TABLE loan_arrears(
     loan_id BIGINT NOT NULL,
@@ -509,12 +530,10 @@ CREATE TABLE loan_arrears(
     arrear_status INT NOT NULL,
     FOREIGN KEY (loan_id) REFERENCES loans(loan_id) /*ON DELETE SET NULL*/,
     PRIMARY KEY (loan_id,due_date)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='loan_arrears';
 
 
-
-
-
+SET GLOBAL event_scheduler='ON';
 
 
 
@@ -532,7 +551,7 @@ BEGIN
 
     IF status == 1 THEN
 		SET employeeStatus = 'OFF';
-    ELSEIF (status == 0 AND THEN
+    ELSEIF status == 0 AND THEN
         SET employeeStatus = 'ON';
     END IF;
 	RETURN (employeeStatus);
@@ -580,6 +599,5 @@ from managers as m
 left join employees as e using(employee_id) 
 LEFT JOIN employee_logins as el using(employee_id)
 group by employee_id;
-
 
 

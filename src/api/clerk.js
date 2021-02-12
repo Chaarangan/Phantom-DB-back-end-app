@@ -8,9 +8,6 @@ const {
     verifyToken,
     isClerk 
 } = require("../services/auth/jwt.js");
-// const {
-//     createAccount
-// } = require("../services/account/index.js");
 const {
     getBranches
 } = require("../services/branch");

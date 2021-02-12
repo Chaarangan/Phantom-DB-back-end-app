@@ -12,13 +12,23 @@ const {
     getClerks,
     getClerkById,
     updateClerkById,
-} = require("../services/employee/manager/clerk");
+} = require("../services/employee/clerk");
 const {
     getBranches
 } = require("../services/branch");
 const {
-    createIndividualAccount,
-} = require("../services/employee/manager/account");
+    getAccounts
+} = require("../services/account");
+const {
+    getTransactions,
+} = require("../services/transaction");
+const {
+    getRequestedLoans,
+    approveLoanRequest,
+    getBankVisitLoans,
+    getLoans,
+    getOnlineLoans,
+} = require("../services/loan");
 
 
 
@@ -53,10 +63,35 @@ router.get("/branches", verifyToken, isManager, getBranches, async(req, res) => 
 });
 
 // ========= Accounts ======= //
-router.post("/accounts/new", verifyToken, isManager, createIndividualAccount, async(req, res) => {
+router.get("/accounts", verifyToken, isManager, getAccounts, async(req, res) => {
+    res.status(200).json({response: req.accounts});
+});
+
+// ========= Transactions ======= //
+router.get("/transactions", verifyToken, isManager, getTransactions, async(req, res) => {
+    res.status(200).json({response: req.transactions});
+});
+
+// ========= Loans ======= //
+router.get("/loans/requested", verifyToken, isManager, getRequestedLoans, async(req, res) => {
+    res.status(200).json({response: req.loans});
+});
+
+router.put("/loans/requested/:request_id", verifyToken, isManager, approveLoanRequest, async(req, res) => {
     res.status(200).json({response: req.message});
 });
 
+router.get("/loans/bank-visit-loans", verifyToken, isManager, getBankVisitLoans, async(req, res) => {
+    res.status(200).json({response: req.loans});
+});
+
+router.get("/loans", verifyToken, isManager, getLoans, async(req, res) => {
+    res.status(200).json({response: req.loans});
+});
+
+router.get("/loans/online", verifyToken, isManager, getOnlineLoans, async(req, res) => {
+    res.status(200).json({response: req.loans});
+});
 
 
 module.exports = router;

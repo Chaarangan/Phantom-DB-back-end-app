@@ -1,88 +1,150 @@
 const sequelize = require("../../helpers/sequelizer");
 const ApiError = require('../../helpers/ApiError');
-const bcrypt=require("bcrypt");
+const bcrypt = require("bcrypt");
+var generator = require('generate-password');
+const date = require('date-and-time');
+const now = new Date();
 
-const createEmployee = async (req, res, next) => {
-    try {
-        await sequelize.query("SELECT * FROM employees WHERE nic = ?", {replacements: [req.body.nic]}).then(
-            async (foundUser) => {
-                if (foundUser[0].length == 0) {
-                    try {
-                        const   first_name = req.body.first_name,
-                                middle_name = req.body.middle_name,
-                                last_name = req.body.last_name,
-                                address = req.body.address,
-                                nic = req.body.nic,
-                                dob = req.body.dob,
-                                gender = req.body.gender,
-                                primary_contact_no = req.body.primary_contact_no,
-                                branch_id = req.body.branch_id;
-                        
-                        await sequelize.query("INSERT INTO employees SET first_name = ?, middle_name = ?, last_name = ?, address = ?, nic = ?, dob = ?, gender = ?, primary_contact_no = ?, branch_id = ?",
-                            {
-                                replacements : [ first_name, middle_name, last_name, address, nic, dob, gender, primary_contact_no, branch_id]
-                            });
+const createIndividualAccount = async (req, res, next) => {
+    const hasAccount = req.body.hasAccount;
 
-                        await sequelize.query("SELECT * FROM employees WHERE nic = ?", {replacements: [nic]}).then(
+    if (hasAccount == 1) { //New customer
+        const customer_type = req.body.customer_type,
+
+            //individuals
+            address_line_1 = req.body.address_line_1,
+            address_line_2 = req.body.address_line_2,
+            address_line_3 = req.body.address_line_3,
+            primary_email = req.body.primary_email,
+            primary_contact_no = req.body.primary_contact_no,
+
+            //individuals
+            first_name = req.body.first_name,
+            last_name = req.body.last_name,
+            middle_name = req.body.middle_name,
+            nic = req.body.nic,
+            dob = req.body.dob,
+            gender = req.body.gender,
+
+            //customer logins
+            username = req.body.username,
+            recovery_contact_no = req.body.recovery_contact_no,
+            recovery_email = req.body.recovery_email,
+
+            //accounts
+            balance = req.body.balance,
+            primary_branch_id = req.body.primary_branch_id,
+
+
+            //account type
+            account_type = req.body.account_type;
+
+
+
+        try {
+            await sequelize.query("SELECT * FROM individuals WHERE nic = ?", { replacements: [nic] }).then(
+                async (foundUsers) => {
+                    if (foundUsers[0].length == 0) {
+                        await sequelize.query("INSERT INTO customers SET address_line_1 = ?, address_line_2 = ?, address_line_3 = ?, primary_email = ?, primary_contact_no = ?, customer_type = ?", { replacements: [address_line_1, address_line_2, address_line_3, primary_email, primary_contact_no, customer_type] }).then(
                             async (foundUser) => {
-                                try {
-                                    sequelize.query("INSERT INTO employee_contact_nos SET employee_id = ?, contact_no = ?",
+                                const customer_id = foundUser[0];
+                                const account_no = null;
+
+                                //emails
+                                if (primary_email != recovery_email) {
+                                    await sequelize.query("INSERT INTO customer_emails SET customer_id = ?, email = ?",
                                         {
-                                            replacements : [foundUser[0][0].employee_id, primary_contact_no]
-                                        }
-                                    );
-
-                                    const   type = req.body.type,
-                                            username = req.body.username,
-                                            password = req.body.password,                                   
-                                            recovery_email = req.body.recovery_email,
-                                            recovery_contact_no = req.body.recovery_contact_no;
-
-                                    
-                                    await bcrypt.genSalt(10, (err, salt) => {
-                                        bcrypt.hash(password, salt, (err, hash) => {
-                                            if (err) {
-                                                console.log(err);
-                                            }
-                                            else {
-                                                sequelize.query("INSERT INTO employee_logins SET employee_id = ?, username = ?, password = ?, recovery_contact_no = ?, recovery_email = ?",
-                                                    {
-                                                        replacements : [foundUser[0][0].employee_id, username, hash, recovery_contact_no, recovery_email]
-                                                    }
-                                                );
-
-                                                if(type == 1){
-                                                    sequelize.query("INSERT INTO managers SET employee_id = ?",
-                                                        {
-                                                            replacements : [foundUser[0][0].employee_id]
-                                                        }
-                                                    );
-                                                }
-                                                else{
-                                                    sequelize.query("INSERT INTO clerks SET employee_id = ?",
-                                                        {
-                                                            replacements : [foundUser[0][0].employee_id]
-                                                        }
-                                                    );
-                                                }
-                                                req.message = "Sucessfully Created!";
-                                                next();
-                                            }
+                                            replacements: [[customer_id, primary_email], [customer_id, recovery_email]]
                                         });
+                                }
+                                else {
+                                    await sequelize.query("INSERT INTO customer_emails SET customer_id = ?, email = ?",
+                                        {
+                                            replacements: [customer_id, primary_email]
+                                        });
+                                }
+
+                                //contact numbers
+                                if (primary_contact_no != recovery_contact_no) {
+                                    await sequelize.query("INSERT INTO customer_contact_nos SET customer_id = ?, contact_no = ?",
+                                        {
+                                            replacements: [[customer_id, primary_contact_no], [customer_id, recovery_contact_no]]
+                                        });
+                                }
+                                else {
+                                    await sequelize.query("INSERT INTO customer_contact_nos SET customer_id = ?, contact_no = ?",
+                                        {
+                                            replacements: [customer_id, primary_contact_no]
+                                        });
+                                }
+
+                                //individuals
+                                await sequelize.query("INSERT INTO individuals SET customer_id = ?, first_name = ?, last_name = ?, middle_name = ?, nic = ?, dob = ?, gender = ?",
+                                    {
+                                        replacements: [customer_id, first_name, last_name, middle_name, nic, dob, gender]
                                     });
-                                }
-                                catch (e){
-                                    console.log(e);
-                                    next(ApiError.badRequest());
-                                }
-                        });
-                    } catch (e) {
-                        console.log(e);
-                        next(ApiError.badRequest());
+
+                                //accounts
+                                await sequelize.query("INSERT INTO accounts SET is_active = ?, balance = ?, primary_customer_id = ?, primary_branch_id = ?, date_created = ?",
+                                    {
+                                        replacements: [0, balance, customer_id, primary_branch_id, date.format(now, 'YYYY-MM-DD HH:mm:ss')]
+                                    }).then(
+                                        async (foundAccount) => {
+                                            account_no = foundAccount[0];
+                                            console.log(account_no);
+                                        });
+                                //account branches
+                                await sequelize.query("INSERT INTO account_branches SET account_no = ?, branch_id = ?",
+                                    {
+                                        replacements: [account_no, primary_branch_id]
+                                    });
+
+                                //account branches
+                                await sequelize.query("INSERT INTO customer_accounts SET customer_id = ?, account_no = ?",
+                                    {
+                                        replacements: [customer_id, account_no]
+                                    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                next();
+                            });
+                    }
+                    else {
+                        return res.status(404).json({ response: "Customer with this NIC found!" });
                     }
                 }
+            );
+        } catch (e) {
+            console.log(e);
+            next(ApiError.badRequest());
+        }
+
+    }
+};
+
+
+
+const getAccounts = async (req, res, next) => {
+    try {
+        await sequelize.query("SELECT * FROM accounts ORDER BY account_no ASC").then(
+            async (foundAccounts) => {
+                if (foundAccounts[0].length != 0) {
+                    req.accounts = foundAccounts;
+                    next();
+                }
                 else {
-                    return res.status(404).json({ response : "Employee with this NIC found!" });
+                    return res.status(404).json({ response: "No Accounts found!" });
                 }
             }
         );
@@ -90,7 +152,6 @@ const createEmployee = async (req, res, next) => {
         console.log(e);
         next(ApiError.badRequest());
     }
-
 };
 
-module.exports = { createEmployee };
+module.exports = { getAccounts }
