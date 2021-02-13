@@ -52,8 +52,8 @@ const approveLoanRequest = async (req, res, next) => {
                                 const loanEvent = `
                                         
                                         CREATE EVENT payInstallment${loan_id}
-                                        ON SCHEDULE EVERY 1 MINUTE 
-                                        STARTS '${request_date}'
+                                        ON SCHEDULE EVERY 1 MONTH  
+                                        STARTS '${request_date}' + INTERVAL 1 MONTH
                                         DO 
                                             BEGIN 
                                                 DECLARE bankBalance FLOAT; 

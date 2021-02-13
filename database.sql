@@ -471,8 +471,8 @@ CREATE TABLE loans(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='loans';
 ALTER TABLE loans AUTO_INCREMENT=11301003989;
 
-INSERT INTO loans (account_no, loan_type, amount, branch_id, date, time_period, installment, loan_status) values 
-("22601003929", 1, 24000.00, 1, '2021-02-13 00:20:38', 12, 2080.00, 0);
+-- INSERT INTO loans (account_no, loan_type, amount, branch_id, date, time_period, installment, loan_status) values 
+-- ("22601003929", 1, 24000.00, 1, '2021-02-13 00:20:38', 12, 2080.00, 0);
 
 
 CREATE TABLE bank_visit_loans( 
