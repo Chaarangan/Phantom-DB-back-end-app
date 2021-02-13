@@ -19,10 +19,11 @@ const login = async (req, res, next) => {
                             res.status(401).json({ status: "error", message: 'Incorrect Password!'});
                         }
                         else{
-                            var token = jwt.sign({ user: foundUser }, config.secret, {
+                            var token = jwt.sign({ user: foundUser[0][0] }, config.secret, {
                                 expiresIn: 86400 // 24 hours
                             });
                             req.accessToken = token;
+                            req.foundUser = foundUser[0][0];
                             req.message = "Sucessfully Logged In!";
                             next();                                               
                         }                              
@@ -50,7 +51,7 @@ const logout = async (req, res, next) => {
             {
                 replacements : [ date.format(now, 'YYYY-MM-DD HH:mm:ss'), req.user.customer_id]
         });
-        res.status(200).json({ accessToken: null, response: 'Loggedout Successfully!'});
+        res.status(200).json({ accessToken: null, response: 'Loggedout Successfully!', user: null});
     } catch (e) {
         console.log(e);
         next(ApiError.badRequest());

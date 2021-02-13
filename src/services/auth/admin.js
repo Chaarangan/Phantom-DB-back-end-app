@@ -35,10 +35,11 @@ const login = async (req, res, next) => {
                             await sequelize.query("SELECT * FROM admins WHERE employee_id = ?", { replacements: [employee_id] }).then(
                                 async (foundUser) => {
                                     if (foundUser[0].length != 0) {
-                                        var token = jwt.sign({ user: foundUser }, config.secret, {
+                                        var token = jwt.sign({ user: foundUser[0][0] }, config.secret, {
                                             expiresIn: 86400 // 24 hours
                                         });
                                         req.accessToken = token;
+                                        req.foundUser = foundUser[0][0];
                                         req.message = "Sucessfully Logged In!";
                                         next();
                                     }
@@ -72,7 +73,7 @@ const logout = async (req, res, next) => {
             {
                 replacements: [date.format(now, 'YYYY-MM-DD HH:mm:ss'), req.userId]
             });
-        res.status(200).json({ accessToken: null, response: 'Loggedout Successfully!' });
+        res.status(200).json({ accessToken: null, response: 'Loggedout Successfully!', user: null});
     } catch (e) {
         console.log(e);
         next(ApiError.badRequest());
