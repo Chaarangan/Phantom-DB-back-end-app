@@ -252,32 +252,35 @@ CREATE TABLE account_branches(
     FOREIGN KEY (Branch_ID) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='account_branches';
 
+
+
+
 INSERT INTO `account_branches` (`account_no`, `branch_id`) VALUES
 (22601003929, 1),
-(22601003929, 21),
-(22601003929, 51),
-(22601003929, 71),
-(22601003930, 11),
-(22601003930, 31),
-(22601003930, 71),
-(22601003931, 11),
-(22601003931, 51),
-(22601003931, 71),
-(22601003931, 121),
-(22601003932, 11),
-(22601003932, 91),
-(22601003932, 131),
-(22601003932, 151),
-(22601003933, 31),
-(22601003933, 61),
-(22601003933, 91),
-(22601003934, 11),
-(22601003934, 21),
-(22601003934, 31),
-(22601003934, 41),
-(22601003935, 11),
-(22601003935, 81),
-(22601003935, 121);
+(22601003929, 2),
+(22601003929, 5),
+(22601003929, 7),
+(22601003930, 1),
+(22601003930, 3),
+(22601003930, 7),
+(22601003931, 1),
+(22601003931, 5),
+(22601003931, 7),
+(22601003931, 12),
+(22601003932, 1),
+(22601003932, 9),
+(22601003932, 13),
+(22601003932, 15),
+(22601003933, 3),
+(22601003933, 6),
+(22601003933, 9),
+(22601003934, 1),
+(22601003934, 2),
+(22601003934, 3),
+(22601003934, 4),
+(22601003935, 1),
+(22601003935, 8),
+(22601003935, 12);
 
 
 CREATE TABLE customer_accounts( 
@@ -468,6 +471,10 @@ CREATE TABLE loans(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='loans';
 ALTER TABLE loans AUTO_INCREMENT=11301003989;
 
+INSERT INTO loans (account_no, loan_type, amount, branch_id, date, time_period, installment, loan_status) values 
+("22601003929", 1, 24000.00, 1, '2021-02-13 00:20:38', 12, 2080.00, 0);
+
+
 CREATE TABLE bank_visit_loans( 
     loan_id BIGINT NOT NULL,
     approved_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -536,36 +543,14 @@ CREATE TABLE loan_arrears(
 SET GLOBAL event_scheduler='ON';
 
 
-
-
-
 DELIMITER $$
-
-CREATE FUNCTION employeeStatus(
-	status INT
-) 
-RETURNS VARCHAR(20)
-DETERMINISTIC
-BEGIN
-    DECLARE employeeStatus VARCHAR(20);
-
-    IF status == 1 THEN
-		SET employeeStatus = 'OFF';
-    ELSEIF status == 0 AND THEN
-        SET employeeStatus = 'ON';
-    END IF;
-	RETURN (employeeStatus);
-END; $$
-DELIMITER ;
-
-
-DELIMITER $$
-CREATE TRIGGER CheckBookCharge BEFORE INSERT ON Checkbook
+CREATE TRIGGER CheckBookCharge BEFORE INSERT ON checkbooks
 FOR EACH ROW
 BEGIN 
 UPDATE accounts SET balance=(balance-((NEW.number_of_pages)*18)) WHERE account_no=NEW.account_no;
 END; $$
 DELIMITER ;
+
 
 
 DELIMITER $$
@@ -601,3 +586,32 @@ LEFT JOIN employee_logins as el using(employee_id)
 group by employee_id;
 
 
+
+
+
+DELIMITER $$
+CREATE EVENT settleInstallment7
+ON SCHEDULE EVERY 1 MINUTE 
+STARTS CURRENT_TIMESTAMP + INTERVAL 1 MINUTE
+DO 
+	BEGIN 
+		DECLARE bankBalance FLOAT; 
+        SELECT balance INTO bankBalance FROM accounts WHERE account_no = '22601003929';
+		IF bankBalance >= 10 THEN 
+			INSERT INTO transaction_details (account_no, amount, withdraw, detail, date_time, teller) 
+			values ('22601003929', '5', false, 'Loan Installment', NOW() , 'self');
+            
+			UPDATE accounts SET balance = (balance - 5) 
+				WHERE account_no = '22601003929';
+                
+			INSERT INTO loan_installment_banks (loan_id, amount, due_date, paid_date) 
+            values ('11301003989', '5', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+		ELSE 
+			INSERT INTO loan_arrears 
+			SET
+				loan_id = '11301003989', 
+				due_date = '2021-02-13 00:20:38', 
+                arrear_status = 0;  
+		END IF;
+	END $$
+DELIMITER ;

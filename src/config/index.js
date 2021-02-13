@@ -6,7 +6,7 @@ if(result.error) throw result.error;
 
 const config = {
     domain: process.env.HOST_DOMAIN || '127.0.0.1',
-    port: process.env.PORT || '4000',
+    port: process.env.PORT || '20414',
 
     db_name : process.env.DB_NAME,
     db_host : process.env.DB_HOST,
@@ -14,7 +14,6 @@ const config = {
     db_password : process.env.DB_PASSWORD,
     db_dialect : process.env.DB_DIALECT,
 
-    react_url : process.env.REACT_URL,
     secret : process.env.JWT_SECRECT,
 };
 
