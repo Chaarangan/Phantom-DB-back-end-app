@@ -25,7 +25,7 @@ const getRequestedLoans = async (req, res, next) => {
 const approveLoanRequest = async (req, res, next) => {
     try {
         const request_id = req.params.request_id;
-        await sequelize.query("SELECT * FROM requested_loans WHERE (request_id = ? and requested_loan_status = ?)", { replacements: [request_id,0] }).then(
+        await sequelize.query("SELECT * FROM requested_loans WHERE (request_id = ? and requested_loan_status = ?)", { replacements: [request_id, 0] }).then(
             async (foundLoan) => {
                 if (foundLoan[0].length != 0) {
                     const account_no = foundLoan[0][0].account_no,
@@ -38,30 +38,47 @@ const approveLoanRequest = async (req, res, next) => {
                         loan_status = 0,
                         approved_by = req.user.employee_id,
                         requested_by = foundLoan[0][0].requested_by;
-                   
-                    try {                        
-                        await sequelize.query("START TRANSACTION;");                       
+
+                    try {
+                        await sequelize.query("START TRANSACTION;");
                         await sequelize.query("UPDATE requested_loans SET requested_loan_status = ? WHERE request_id = ?", { replacements: [1, request_id] });
                         await sequelize.query("INSERT INTO loans SET account_no = ?, loan_type = ?, amount = ?, branch_id = ?, date = ?, time_period = ?, installment = ?, loan_status = ?", { replacements: [account_no, loan_type, amount, branch_id, request_date, time_period, installment, loan_status] }).then(
-                            async (results) => {                                                                                          
-                                const loan_id = results[0];                                
+                            async (results) => {
+                                const loan_id = results[0];
                                 await sequelize.query("INSERT INTO bank_visit_loans SET loan_id = ?, approved_date = ?, approved_by = ?, requested_by = ?", { replacements: [loan_id, request_date, approved_by, requested_by] });
                                 await sequelize.query("INSERT INTO transaction_details SET account_no = ?, amount = ?, withdraw = ?, detail = ?, date_time = ?, teller = ?", { replacements: [account_no, amount, false, "Loan Accepted", request_date, "self"] });
                                 await sequelize.query("UPDATE accounts SET balance = (balance +" + amount + ") WHERE account_no = ?", { replacements: [account_no] });
 
-                                //const loanEvent = "DELIMITER $$ CREATE EVENT settleInstallment_" + loan_id + " ON SCHEDULE EVERY 1 MONTH STARTS '" + request_date + "' DO BEGIN DECLARE bankBalance FLOAT; INSERT INTO transaction_details SET account_no = " + account_no + ", amount = " + installment + ",  withdraw = false, detail = 'Loan Installment', teller = 'self'; IF bankBalance > " + installment + " THEN UPDATE accounts SET balance = (balance - " + installment + ") WHERE account_no = " + account_no + "; ELSE INSERT INTO loan_arrears loan_id = " + loan_id + ", due_date = CURRENT_TIMESTAMP, arrear_status = 0;  END $$ DELIMITER ;";
-                                const loanEvent = "CREATE EVENT settleInstallment" +loan_id+ " ON SCHEDULE EVERY 1 MINUTE STARTS '" + request_date + "' DO INSERT INTO transaction_details SET account_no = " + account_no + ", amount = " + installment + ",  withdraw = false, detail = 'Loan Installment', teller = 'self'";
+                                const loanEvent = `
+                                        
+                                        CREATE EVENT payInstallment${loan_id}
+                                        ON SCHEDULE EVERY 1 MINUTE 
+                                        STARTS '${request_date}'
+                                        DO 
+                                            BEGIN 
+                                                DECLARE bankBalance FLOAT; 
+                                                SELECT balance INTO bankBalance FROM accounts WHERE account_no = ${account_no}; 
+                                                IF bankBalance >= ${installment} THEN 
+                                                    INSERT INTO transaction_details(account_no, amount, withdraw, detail, date_time, teller) 
+                                                    values (${loan_id}, ${installment}, false, 'Loan Installment', '${request_date}', 'self'); 
+                                                    UPDATE accounts SET balance = (balance - ${installment}) WHERE account_no = ${account_no}; 
+                                                    INSERT INTO loan_installment_banks(loan_id, amount, due_date, paid_date) 
+                                                    values(${loan_id}, ${installment}, '${request_date}', '${request_date}'); 
+                                                ELSE  
+                                                    INSERT INTO loan_arrears SET loan_id = ${loan_id}, due_date = '${request_date}', arrear_status = 0; 
+                                                END IF; 
+                                            END`;
                                 
-                                await sequelize.query(loanEvent);
+                                    await sequelize.query(loanEvent);           
                                 
-                                //await sequelize.query("SET GLOBAL event_scheduler='ON'");
+                                
                                 await sequelize.query("COMMIT;");
                                 req.message = "Approved Successfully!";
                                 next();
                             });
                     }
-                    catch (e) {
-                        await sequelize.query("ROLLBACK; SET autocommit=1;");
+                    catch (e) {                        
+                        await sequelize.query("ROLLBACK;");
                         return res.status(400).json({ response: "Fail to approve this loan. Try Again!" });
                     }
                 }
