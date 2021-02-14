@@ -391,19 +391,23 @@ CREATE TABLE transaction_details(
     PRIMARY KEY(transaction_id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='transaction_details';
 
+
+-- peoples deposit or withdraw money by visiting
 CREATE TABLE bank_transactions(
     transaction_id INT NOT NULL PRIMARY KEY,
     FOREIGN KEY (transaction_id) REFERENCES transaction_details(transaction_id) /*ON DELETE SET NULL*/
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='bank_transactions';
 
-CREATE TABLE atm_withdrawals(
+-- atm withdraw
+CREATE TABLE atm_transactions(
     atm_transaction_id INT NOT NULL AUTO_INCREMENT,
 	transaction_id INT NOT NULL,
     atm_id INT NOT NULL,
 	PRIMARY KEY(atm_transaction_id),
     FOREIGN KEY (transaction_id) REFERENCES transaction_details(transaction_id) /*ON DELETE SET NULL*/
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='atm_withdrawals';
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='atm_transactions';
 
+-- through online portal
 CREATE TABLE online_transactions(
     online_transaction_id INT NOT NULL AUTO_INCREMENT,
 	withdrawal_id INT,
@@ -548,7 +552,53 @@ CREATE TABLE loan_arrears(
     PRIMARY KEY (loan_id,due_date)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='loan_arrears';
 
-SET GLOBAL event_scheduler='ON';
+
+
+-- get branch names
+DELIMITER $$
+CREATE FUNCTION getBranch(
+	branch_id INT
+) 
+RETURNS VARCHAR(64)
+DETERMINISTIC
+BEGIN
+    DECLARE branch_name VARCHAR(128);
+    SELECT 
+		b.branch_name INTO branch_name
+    FROM 
+		branches b
+	WHERE b.branch_id = branch_id;
+
+	RETURN (branch_name);
+END$$
+DELIMITER ;
+
+
+-- view for get deposit details
+CREATE VIEW online_deposit_view AS
+    SELECT 
+        online_transaction_id, 
+        account_no as sourceAccount,
+        amount,
+        detail,
+        date_time,
+        getBranch(branch_id) as sourceBranch
+    FROM
+        transaction_details td
+	INNER JOIN online_transactions ot ON td.transaction_id = ot.deposit_id;
+    
+-- view for get withdraw details
+CREATE VIEW online_withdraw_view AS
+    SELECT 
+        online_transaction_id, 
+        account_no as destinationAccount,
+        getBranch(branch_id) as destinationBranch
+    FROM
+        transaction_details td
+	INNER JOIN online_transactions ot ON td.transaction_id = ot.withdrawal_id;
+
+
+
 
 
 DELIMITER $$
@@ -559,31 +609,6 @@ UPDATE accounts SET balance=(balance-((NEW.number_of_pages)*18)) WHERE account_n
 END; $$
 DELIMITER ;
 
-
-
-DELIMITER $$
-
-CREATE FUNCTION getBranch(
-	branch_id INT
-) 
-RETURNS VARCHAR(64)
-DETERMINISTIC
-BEGIN
-    DECLARE branch_name VARCHAR(64);
-
-    SELECT 
-		branch_name
-	INTO branch_name
-    FROM branches
-    WHERE 
-		branch_id = branch_id;
-
-	RETURN (branch_name);
-END; $$
-DELIMITER ;
-
-
-
 CREATE VIEW managerOverview AS 
 select 
 	e.nic, 
@@ -592,34 +617,3 @@ from managers as m
 left join employees as e using(employee_id) 
 LEFT JOIN employee_logins as el using(employee_id)
 group by employee_id;
-
-
-
-
-
-DELIMITER $$
-CREATE EVENT settleInstallment7
-ON SCHEDULE EVERY 1 MINUTE 
-STARTS CURRENT_TIMESTAMP + INTERVAL 1 MINUTE
-DO 
-	BEGIN 
-		DECLARE bankBalance FLOAT; 
-        SELECT balance INTO bankBalance FROM accounts WHERE account_no = '22601003929';
-		IF bankBalance >= 10 THEN 
-			INSERT INTO transaction_details (account_no, amount, withdraw, detail, date_time, teller) 
-			values ('22601003929', '5', false, 'Loan Installment', NOW() , 'self');
-            
-			UPDATE accounts SET balance = (balance - 5) 
-				WHERE account_no = '22601003929';
-                
-			INSERT INTO loan_installment_banks (loan_id, amount, due_date, paid_date) 
-            values ('11301003989', '5', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-		ELSE 
-			INSERT INTO loan_arrears 
-			SET
-				loan_id = '11301003989', 
-				due_date = '2021-02-13 00:20:38', 
-                arrear_status = 0;  
-		END IF;
-	END $$
-DELIMITER ;

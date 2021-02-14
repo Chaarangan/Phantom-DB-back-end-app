@@ -20,7 +20,10 @@ const {
     getAccounts
 } = require("../services/account");
 const {
-    getTransactions,
+    getBankTransactions,
+    getATMTransactions,
+    getOnlineTransactions,
+    getLoanTransactions
 } = require("../services/transaction");
 const {
     getRequestedLoans,
@@ -68,7 +71,16 @@ router.get("/accounts", verifyToken, isManager, getAccounts, async(req, res) => 
 });
 
 // ========= Transactions ======= //
-router.get("/transactions", verifyToken, isManager, getTransactions, async(req, res) => {
+router.get("/transactions/bank", verifyToken, isManager, getBankTransactions, async(req, res) => {
+    res.status(200).json({response: req.transactions});
+});
+router.get("/transactions/atm", verifyToken, isManager, getATMTransactions, async(req, res) => {
+    res.status(200).json({response: req.transactions});
+});
+router.get("/transactions/online", verifyToken, isManager, getOnlineTransactions, async(req, res) => {
+    res.status(200).json({response: req.transactions});
+});
+router.get("/transactions/loan", verifyToken, isManager, getLoanTransactions, async(req, res) => {
     res.status(200).json({response: req.transactions});
 });
 

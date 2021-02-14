@@ -16,6 +16,7 @@ drop table online_loans;
 drop table loan_installment_banks;
 drop table loan_arrears;
 drop table fixed_deposits;
+drop table loan_transactions;
 drop table loans;
 drop table online_transactions;
 drop table transaction_details;
