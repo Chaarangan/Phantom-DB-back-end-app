@@ -19,7 +19,7 @@ const login = async (req, res, next) => {
                             res.status(401).json({ status: "error", response: 'Incorrect Password!'});
                         }
                         else{
-                            await sequelize.query("SELECT * FROM clerks WHERE employee_id = ?", {replacements: [employee_id]}).then(
+                            await sequelize.query("SELECT * FROM employees WHERE (employee_id = ? and (employee_id IN (SELECT * FROM clerks)))", {replacements: [employee_id]}).then(
                                 async (foundUser) => {
                                     if (foundUser[0].length != 0) {
                                         var token = jwt.sign({ user: foundUser[0][0] }, config.secret, {

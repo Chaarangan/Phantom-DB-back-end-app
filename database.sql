@@ -84,7 +84,7 @@ CREATE TABLE customer_logins(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='customer_logins';
 
 INSERT INTO `customer_logins` (`customer_id`, `username`, `password`, `recovery_contact_no`, `recovery_email`, `last_login`) VALUES
-(1, 'oliverjake', '8cb2237d0679ca88db6464eac60da96345513964', '1234567891', 'OliverJake@gmail.com', '2020-01-02 00:19:56'),
+(1, 'Customer', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '1234567891', 'OliverJake@gmail.com', '2020-01-02 00:19:56'),
 (2, 'ameliaemma', '8cb2237d0679ca88db6464eac60da96345513964', '9876543211', 'AmeliaMargaret@gmail.com', '2020-01-01 00:19:56'),
 (3, 'williamdamian', '8cb2237d0679ca88db6464eac60da96345513964', '5432167891', 'DamianWilliam@ymail.com', '2020-01-05 00:19:56'),
 (4, 'bethanysophia', '348162101fc6f7e624681b7400b085eeac6df7bd', '1233214569', 'IslaBethany@outlook.com', '2020-01-04 00:19:56');
@@ -185,8 +185,8 @@ CREATE TABLE employee_logins(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='employee_logins';
 
 INSERT INTO `employee_logins` (`employee_id`, `username`, `password`, `recovery_contact_no`, `recovery_email`, `last_login`) VALUES
-(1, 'john', '8cb2237d0679ca88db6464eac60da96345513964', '0766220249', 'johnsmith@gmail.com', '2020-01-02 00:19:56'),
-(2, 'emma', '8cb2237d0679ca88db6464eac60da96345513964', '0716220249', 'emma@gmail.com', '2020-01-04 00:19:56'),
+(1, 'Charangan', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '0766220249', 'johnsmith@gmail.com', '2020-01-02 00:19:56'),
+(2, 'Volka', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '0716220249', 'emma@gmail.com', '2020-01-04 00:19:56'),
 (3, 'Manager', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '0717303215', 'theresamay@banka.com', '2020-01-07 00:19:56'),
 (4, 'Clerk', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '0112816336', 'albertbrethan@yahoo.com', '2020-01-01 00:19:56'),
 (5, 'Admin', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '0112816336', 'albertbrethan@yahoo.com', '2020-01-01 00:19:56');
