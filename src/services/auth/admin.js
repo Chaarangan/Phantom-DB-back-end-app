@@ -1,5 +1,4 @@
 const sequelize = require("../../helpers/sequelizer");
-const ApiError = require('../../helpers/ApiError');
 const bcrypt = require("bcrypt");
 const config = require("../../config/index");
 var jwt = require("jsonwebtoken");
@@ -29,7 +28,7 @@ const login = async (req, res, next) => {
                             password = foundUser[0][0].password;
 
                         if (!(await bcrypt.compare(req.body.password, password))) {
-                            res.status(401).json({ accessToken: null, status: "error", message: 'Incorrect Password!' });
+                            return res.status(401).json({ accessToken: null, status: "error", message: 'Incorrect Password!', status : 401 });
                         }
                         else {
                             await sequelize.query("SELECT * FROM admins WHERE employee_id = ?", { replacements: [employee_id] }).then(
@@ -44,7 +43,7 @@ const login = async (req, res, next) => {
                                         next();
                                     }
                                     else {
-                                        return res.status(404).json({ response: "No Admin found with this username!" });
+                                        return res.status(404).json({ response: "No Admin found with this username!", status : 404});
                                     }
 
                                 }
@@ -53,17 +52,17 @@ const login = async (req, res, next) => {
                     }
                     catch (e) {
                         console.log(e);
-                        next(ApiError.badRequest());
+                        return res.status(400).json({status: 400, response: "Bad Request!"});
                     }
                 }
                 else {
-                    return res.status(404).json({ response: "No Admin found with this username!" });
+                    return res.status(404).json({ response: "No Admin found with this username!", status : 404});
                 }
             }
         );
     } catch (e) {
         console.log(e);
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 };
 
@@ -73,10 +72,10 @@ const logout = async (req, res, next) => {
             {
                 replacements: [date.format(now, 'YYYY-MM-DD HH:mm:ss'), req.userId]
             });
-        res.status(200).json({ accessToken: null, response: 'Loggedout Successfully!', user: null});
+        return res.status(200).json({ accessToken: null, response: 'Loggedout Successfully!', user: null, status : 200});
     } catch (e) {
         console.log(e);
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 };
 
@@ -157,22 +156,22 @@ const createEmployee = async (req, res, next) => {
                                 }
                                 catch (e) {
                                     console.log(e);
-                                    next(ApiError.badRequest());
+                                    return res.status(400).json({status: 400, response: "Bad Request!"});
                                 }
                             });
                     } catch (e) {
                         console.log(e);
-                        next(ApiError.badRequest());
+                        return res.status(400).json({status: 400, response: "Bad Request!"});
                     }
                 }
                 else {
-                    return res.status(404).json({ response: "Employee with this NIC or Username found!" });
+                    return res.status(404).json({ response: "Employee with this NIC or Username found!", status : 404 });
                 }
             }
         );
     } catch (e) {
         console.log(e);
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 };
 
@@ -186,13 +185,13 @@ const getEmployees = async (req, res, next) => {
                     next();
                 }
                 else {
-                    return res.status(404).json({ response: "No Employees found!" });
+                    return res.status(404).json({ response: "No Employees found!", status : 404 });
                 }
             }
         );
     } catch (e) {
         console.log(e);
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 
 };
@@ -207,13 +206,13 @@ const getEmployeeById = async (req, res, next) => {
                     next();
                 }
                 else {
-                    return res.status(404).json({ response: "No Employee found!" });
+                    return res.status(404).json({ response: "No Employee found!", status : 404});
                 }
             }
         );
     } catch (e) {
         console.log(e);
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 
 };
@@ -256,17 +255,17 @@ const updateEmployeeById = async (req, res, next) => {
 
                     } catch (e) {
                         console.log(e);
-                        next(ApiError.badRequest());
+                        return res.status(400).json({status: 400, response: "Bad Request!"});
                     }
                 }
                 else {
-                    return res.status(404).json({ response: "No Employee found!" });
+                    return res.status(404).json({ response: "No Employee found!", status : 404 });
                 }
             }
         );
     } catch (e) {
         console.log(e);
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 
 };
@@ -302,7 +301,7 @@ const sendRandomPassword = async (req, res, next) => {
 
                                     transporter.sendMail(mailOptions, function (error, info) {
                                         if (error) {
-                                            return res.status(401).json({ response: error });
+                                            return res.status(401).json({ response: error, status : 401 });
                                         }
                                         else {
                                             req.message = "Sucessfully Send!";
@@ -314,17 +313,17 @@ const sendRandomPassword = async (req, res, next) => {
                         });
                     } catch (e) {
                         console.log(e);
-                        next(ApiError.badRequest());
+                        return res.status(400).json({status: 400, response: "Bad Request!"});
                     }
                 }
                 else {
-                    return res.status(404).json({ response: "Employee with this NIC found!" });
+                    return res.status(404).json({ response: "Employee with this NIC found!", status : 404 });
                 }
             }
         );
     } catch (e) {
         console.log(e);
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 
 };

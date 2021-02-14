@@ -1,5 +1,4 @@
 const sequelize = require("../../../helpers/sequelizer");
-const ApiError = require('../../../helpers/ApiError');
 
 const getClerks = async (req, res, next) => {
     try {
@@ -10,13 +9,13 @@ const getClerks = async (req, res, next) => {
                     next();
                 }
                 else {                   
-                    return res.status(404).json({ response : "No Clerks found!" });
+                    return res.status(404).json({ response : "No Clerks found!", status : 404 });
                 }
             }
         );
     } catch (e) {
         console.log(e);
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 };
 
@@ -29,13 +28,13 @@ const getClerkById = async (req, res, next) => {
                     next();
                 }
                 else {
-                    return res.status(404).json({ response : "No Clerk found!" });
+                    return res.status(404).json({ response : "No Clerk found!", status : 404 });
                 }
             }
         );
     } catch (e) {
         console.log(e);
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 
 };
@@ -59,17 +58,17 @@ const updateClerkById = async (req, res, next) => {
 
                     } catch (e) {
                         console.log(e);
-                        next(ApiError.badRequest());
+                        return res.status(400).json({status: 400, response: "Bad Request!"});
                     }              
                 }
                 else {
-                    return res.status(404).json({ response : "No Clerk found!" });
+                    return res.status(404).json({ response : "No Clerk found!", status : 404 });
                 }
             }
         );
     } catch (e) {
         console.log(e);
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 };
 

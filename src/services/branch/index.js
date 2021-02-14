@@ -1,6 +1,4 @@
 const sequelize = require("../../helpers/sequelizer");
-const ApiError = require('../../helpers/ApiError');
-const branch = require("../../models/branch");
 
 const getBranches = async(req, res, next) => {
     try {
@@ -8,7 +6,7 @@ const getBranches = async(req, res, next) => {
         req.branches = branches;
         next();
     } catch (e) {
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 };
 
@@ -20,7 +18,7 @@ const getBranchById = async(req, res, next) => {
         req.branch = branch;
         next();
     } catch (e) {
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 };
 

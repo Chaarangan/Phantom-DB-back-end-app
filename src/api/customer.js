@@ -11,7 +11,7 @@ const {
 
 // ========= Auth ======= //
 router.post("/login", login, async(req, res) => {
-    res.status(200).json({response: req.message, accessToken : req.accessToken, user: req.foundUser});
+    res.status(200).json({response: req.message, accessToken : req.accessToken, user: req.foundUser, status : 200});
 });
 
 router.get("/logout", verifyToken, isCustomer, logout);

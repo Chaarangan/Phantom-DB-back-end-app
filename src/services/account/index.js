@@ -1,7 +1,4 @@
 const sequelize = require("../../helpers/sequelizer");
-const ApiError = require('../../helpers/ApiError');
-const bcrypt = require("bcrypt");
-var generator = require('generate-password');
 const date = require('date-and-time');
 const now = new Date();
 
@@ -121,13 +118,13 @@ const createIndividualAccount = async (req, res, next) => {
                             });
                     }
                     else {
-                        return res.status(404).json({ response: "Customer with this NIC found!" });
+                        return res.status(404).json({ response: "Customer with this NIC found!", status : 404 });
                     }
                 }
             );
         } catch (e) {
             console.log(e);
-            next(ApiError.badRequest());
+            return res.status(400).json({status: 400, response: "Bad Request!"});
         }
 
     }
@@ -144,13 +141,13 @@ const getAccounts = async (req, res, next) => {
                     next();
                 }
                 else {
-                    return res.status(404).json({ response: "No Accounts found!" });
+                    return res.status(404).json({ response: "No Accounts found!", status : 404});
                 }
             }
         );
     } catch (e) {
         console.log(e);
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 };
 

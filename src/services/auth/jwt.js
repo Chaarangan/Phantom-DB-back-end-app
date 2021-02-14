@@ -1,4 +1,3 @@
-const ApiError = require('../../helpers/ApiError');
 const sequelize = require("../../helpers/sequelizer");
 const jwt = require("jsonwebtoken");
 const config = require("../../config/index");

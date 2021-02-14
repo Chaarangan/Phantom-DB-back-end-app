@@ -21,40 +21,40 @@ const {
 
 // ========= Auth ======= //
 router.post("/login", login, async(req, res) => {
-    res.status(200).json({response: req.message, accessToken : req.accessToken, user: req.foundUser});
+    res.status(200).json({response: req.message, accessToken : req.accessToken, user: req.foundUser, status : 200});
 });
 
 router.get("/logout", verifyToken, isAdmin, logout);
 
 // ========= Employees ======= //
 router.post("/employees/new", verifyToken, isAdmin, createEmployee, async(req, res) => {
-    res.status(200).json({response: req.message});
+    res.status(200).json({response: req.message, status : 200});
 });
 
 router.get("/employees/", verifyToken, isAdmin, getEmployees, async(req, res) => {
-    res.status(200).json({response: req.employees});
+    res.status(200).json({response: req.employees, status : 200});
 });
 
 router.get("/employees/:employee_id", verifyToken, isAdmin, getEmployeeById, async(req, res) => {
-    res.status(200).json({response: req.employee});
+    res.status(200).json({response: req.employee, status : 200});
 });
 
 router.put("/employees/:employee_id", verifyToken, isAdmin, updateEmployeeById, async(req, res) => {
-    res.status(200).json({response: req.message});
+    res.status(200).json({response: req.message, status : 200});
 });
 
 router.get("/employees/:employee_id/random-password", verifyToken, isAdmin, sendRandomPassword, async(req, res) => {
-    res.status(200).json({response: req.message});
+    res.status(200).json({response: req.message, status : 200});
 });
 
 
 // ========= Branches ======= //
 router.get("/branches", getBranches, verifyToken, isAdmin, async(req, res) => {
-    res.status(200).json({response: req.branches});
+    res.status(200).json({response: req.branches, status : 200});
 });
 
 router.get("/branches/:branch_id", verifyToken, isAdmin, getBranchById, async(req, res) => {
-    res.status(200).json({response: req.branch});
+    res.status(200).json({response: req.branch, status : 200});
 });
 
 module.exports = router;
