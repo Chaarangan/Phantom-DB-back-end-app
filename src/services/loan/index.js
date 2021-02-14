@@ -32,7 +32,7 @@ const approveLoanRequest = async (req, res, next) => {
                         loan_type = foundLoan[0][0].loan_type,
                         amount = foundLoan[0][0].amount,
                         branch_id = foundLoan[0][0].branch_id,
-                        request_date = date.format(now, 'YYYY-MM-DD HH:mm:ss'),
+                        request_date = date.format(now, 'YYYY-MM-DD HH:mm:ss GMT+0530'),
                         time_period = foundLoan[0][0].time_period,
                         installment = foundLoan[0][0].installment,
                         loan_status = 0,
@@ -48,9 +48,8 @@ const approveLoanRequest = async (req, res, next) => {
                                 await sequelize.query("INSERT INTO bank_visit_loans SET loan_id = ?, approved_date = ?, approved_by = ?, requested_by = ?", { replacements: [loan_id, request_date, approved_by, requested_by] });
                                 await sequelize.query("INSERT INTO transaction_details SET account_no = ?, amount = ?, withdraw = ?, detail = ?, date_time = ?, teller = ?", { replacements: [account_no, amount, false, "Loan Accepted", request_date, "self"] });
                                 await sequelize.query("UPDATE accounts SET balance = (balance +" + amount + ") WHERE account_no = ?", { replacements: [account_no] });
-
-                                const loanEvent = `
-                                        
+                                await sequelize.query("SET time_zone = '+05:30'");
+                                const loanEvent = `                                        
                                         CREATE EVENT payInstallment${loan_id}
                                         ON SCHEDULE EVERY 1 MONTH  
                                         STARTS '${request_date}' + INTERVAL 1 MONTH
