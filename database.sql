@@ -439,7 +439,7 @@ CREATE TABLE requested_loans(
     installment_type INT NOT NULL,    /* if 1 online, 2 manual*/
     requested_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     requested_by INT,
-    requested_loan_status INT NOT NULL, /* if 0 pending, 1 accpepted, 3 rejected*/
+    requested_loan_status INT NOT NULL, /* if 0 pending, 1 accpepted, 2 rejected*/
     FOREIGN KEY (loan_type) REFERENCES loan_types(type_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (requested_by) REFERENCES clerks(employee_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
@@ -468,7 +468,7 @@ CREATE TABLE loans(
     time_period INT,
     installment FLOAT,
     installment_type INT NOT NULL,    /* if 1 online, 2 manual*/
-    loan_status INT NOT NULL,
+    loan_status INT NOT NULL, /* if 0 ongoing if 1 finish */
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (loan_type) REFERENCES loan_types(type_id) /*ON DELETE SET NULL*/,
@@ -478,6 +478,14 @@ ALTER TABLE loans AUTO_INCREMENT=11301003989;
 
 -- INSERT INTO loans (account_no, loan_type, amount, branch_id, date, time_period, installment, loan_status) values 
 -- ("22601003929", 1, 24000.00, 1, '2021-02-13 00:20:38', 12, 2080.00, 0);
+
+CREATE TABLE rejected_loans(
+    request_id INT NOT NULL,
+    reason TEXT,
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    loan_status INT NOT NULL, /* if 0 rejected if 1 accepted */
+    FOREIGN KEY (request_id) REFERENCES requested_loans(request_id) /*ON DELETE SET NULL*/
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='rejected_loans';
 
 
 CREATE TABLE bank_visit_loans( 

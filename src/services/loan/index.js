@@ -1,7 +1,34 @@
 const sequelize = require("../../helpers/sequelizer");
-const ApiError = require('../../helpers/ApiError');
 const date = require('date-and-time');
 const now = new Date();
+
+const createLoanRequest = async (req, res, next) => {
+    try {
+        const   loan_type = req.body.loan_type,
+                account_no = req.body.account_no,
+                amount = req.body.amount,
+                branch_id = req.user.branch_id,
+                time_period = req.body.time_period,
+                installment_type = req.body.installment_type,
+                request_date = date.format(now, 'YYYY-MM-DD HH:mm:ss GMT+0530'),
+                request_by = req.user.employee_id;
+                
+        await sequelize.query("SELECT * FROM requested_loans WHERE requested_loan_status = 0 ORDER BY request_id ASC").then(
+            async (foundLoans) => {
+                if (foundLoans[0].length != 0) {
+                    req.loans = foundLoans;
+                    next();
+                }
+                else {
+                    return res.status(404).json({ response: "No Loan Requests found!", status : 404 });
+                }
+            }
+        );
+    } catch (e) {
+        console.log(e);
+        return res.status(400).json({status: 400, response: "Bad Request!"});
+    }
+};
 
 const getRequestedLoans = async (req, res, next) => {
     try {
@@ -12,13 +39,13 @@ const getRequestedLoans = async (req, res, next) => {
                     next();
                 }
                 else {
-                    return res.status(404).json({ response: "No Loan Requests found!" });
+                    return res.status(404).json({ response: "No Loan Requests found!", status : 404 });
                 }
             }
         );
     } catch (e) {
         console.log(e);
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 };
 
@@ -97,17 +124,17 @@ const approveLoanRequest = async (req, res, next) => {
                     catch (e) {          
                         console.log(e);              
                         await sequelize.query("ROLLBACK;");
-                        return res.status(400).json({ response: "Fail to approve this loan. Try Again!" });
+                        return res.status(400).json({ response: "Fail to approve this loan. Try Again!", status : 400 });
                     }
                 }
                 else {
-                    return res.status(404).json({ response: "No Loan with this id found for approval!" });
+                    return res.status(404).json({ response: "No Loan with this id found for approval!" , status : 404});
                 }
             }
         );
     } catch (e) {
         console.log(e);
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 
 };
@@ -122,13 +149,13 @@ const getBankVisitLoans = async (req, res, next) => {
                     next();
                 }
                 else {
-                    return res.status(404).json({ response: "No Loans found!" });
+                    return res.status(404).json({ response: "No Loans found!", status : 404 });
                 }
             }
         );
     } catch (e) {
         console.log(e);
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 };
 
@@ -142,13 +169,13 @@ const getLoans = async (req, res, next) => {
                     next();
                 }
                 else {
-                    return res.status(404).json({ response: "No Loans found!" });
+                    return res.status(404).json({ response: "No Loans found!", status : 404 });
                 }
             }
         );
     } catch (e) {
         console.log(e);
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 };
 
@@ -161,14 +188,63 @@ const getOnlineLoans = async (req, res, next) => {
                     next();
                 }
                 else {
-                    return res.status(404).json({ response: "No Online Loans found!" });
+                    return res.status(404).json({ response: "No Online Loans found!", status : 404 });
                 }
             }
         );
     } catch (e) {
         console.log(e);
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 };
 
-module.exports = { getRequestedLoans, approveLoanRequest, getBankVisitLoans, getLoans, getOnlineLoans }
+
+const rejectLoanRequest = async (req, res, next) => {
+    try {
+        const   reason = req.body.reason,
+                rejected_date = date.format(now, 'YYYY-MM-DD HH:mm:ss GMT+0530'),
+                request_id = req.params.request_id;
+                
+        await sequelize.query("SELECT * FROM requested_loans WHERE request_id = ?", {replacements : [request_id]}).then(
+            async (foundLoan) => {
+                if (foundLoan[0].length != 0) {
+                    await sequelize.query("START TRANSACTION");
+                    await sequelize.query("INSERT INTO rejected_loans SET request_id = ?, date = ?, loan_status = ?, reason = ?", {replacements : [request_id, rejected_date, 0, reason]});
+                    await sequelize.query("UPDATE requested_loans SET requested_loan_status = ? WHERE request_id = ?", {replacements : [2, request_id]});
+                    await sequelize.query("COMMIT");
+                    req.message = "Rejected Successfully!";
+                    next();
+                }
+                else {
+                    return res.status(404).json({ response: "No Loan Requests found!", status : 404 });
+                }
+            }
+        );
+    } catch (e) {
+        console.log(e);
+        await sequelize.query("ROLLBACK;");
+        return res.status(400).json({status: 400, response: "Failed!. Try again."});
+    }
+};
+
+
+const getRejectedLoans = async (req, res, next) => {
+    try {                      
+        await sequelize.query("SELECT * FROM rejected_loans ORDER BY request_id ASC").then(
+            async (foundLoans) => {
+                if (foundLoans[0].length != 0) {                    
+                    req.loans = foundLoans[0][0];
+                    next();
+                }
+                else {
+                    return res.status(404).json({ response: "No Rejected Loans found!", status : 404 });
+                }
+            }
+        );
+    } catch (e) {
+        console.log(e);
+        return res.status(400).json({status: 400, response: "Failed!. Try again."});
+    }
+};
+
+module.exports = { getRequestedLoans, approveLoanRequest, getBankVisitLoans, getLoans, getOnlineLoans, rejectLoanRequest, getRejectedLoans }

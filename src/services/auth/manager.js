@@ -1,5 +1,4 @@
 const sequelize = require("../../helpers/sequelizer");
-const ApiError = require('../../helpers/ApiError');
 const bcrypt=require("bcrypt");
 const config = require("../../config/index");
 var jwt = require("jsonwebtoken");
@@ -17,7 +16,7 @@ const login = async (req, res, next) => {
                                 password = foundUser[0][0].password;
                         
                         if (!(await bcrypt.compare(req.body.password, password))) {
-                            res.status(401).json({ accessToken: null, response: 'Incorrect Password!'});
+                            return res.status(401).json({ accessToken: null, response: 'Incorrect Password!', status : 401});
                         }
                         else{
                             await sequelize.query("SELECT * FROM employees WHERE (employee_id = ? and (employee_id IN (SELECT * FROM managers)))", {replacements: [employee_id]}).then(
@@ -32,7 +31,7 @@ const login = async (req, res, next) => {
                                         next();                                               
                                     }
                                     else{
-                                        return res.status(404).json({ response : "No Manager found with this username!" });
+                                        return res.status(404).json({ response : "No Manager found with this username!", status : 404 });
                                     }
                                                     
                                 }
@@ -41,17 +40,17 @@ const login = async (req, res, next) => {
                     }
                     catch (e){
                         console.log(e);
-                        next(ApiError.badRequest());
+                        return res.status(400).json({status: 400, response: "Bad Request!"});
                     }
                 }
                 else {
-                    return res.status(404).json({ response : "No Manager found with this username!" });
+                    return res.status(404).json({ response : "No Manager found with this username!", status : 404 });
                 }
             }
         );
     } catch (e) {
         console.log(e);
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 
 };
@@ -62,10 +61,10 @@ const logout = async (req, res, next) => {
             {
                 replacements : [ date.format(now, 'YYYY-MM-DD HH:mm:ss'), req.user.employee_id]
         });
-        res.status(200).json({ accessToken: null, response: 'Loggedout Successfully!', user: null});
+        return res.status(200).json({ accessToken: null, response: 'Loggedout Successfully!', user: null , status : 200});
     } catch (e) {
         console.log(e);
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 };
 
@@ -106,17 +105,17 @@ const updateProfile = async (req, res, next) => {
 
                     } catch (e) {
                         console.log(e);
-                        next(ApiError.badRequest());
+                        return res.status(400).json({status: 400, response: "Bad Request!"});
                     }              
                 }
                 else {
-                    return res.status(404).json({ response : "No Employee found!" });
+                    return res.status(404).json({ response : "No Employee found!" , status : 404 });
                 }
             }
         );
     } catch (e) {
         console.log(e);
-        next(ApiError.badRequest());
+        return res.status(400).json({status: 400, response: "Bad Request!"});
     }
 
 };
