@@ -386,6 +386,7 @@ CREATE TABLE transaction_details(
     detail VARCHAR(20),
     date_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     teller VARCHAR(20),
+    branch_id INT NOT NULL,
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
     PRIMARY KEY(transaction_id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='transaction_details';
@@ -394,8 +395,6 @@ CREATE TABLE bank_transactions(
     transaction_id INT NOT NULL PRIMARY KEY,
     FOREIGN KEY (transaction_id) REFERENCES transaction_details(transaction_id) /*ON DELETE SET NULL*/
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='bank_transactions';
-
-
 
 CREATE TABLE atm_withdrawals(
     atm_transaction_id INT NOT NULL AUTO_INCREMENT,
@@ -433,9 +432,10 @@ CREATE TABLE requested_loans(
     branch_id INT NOT NULL,
     time_period INT NOT NULL,
     installment FLOAT NOT NULL,
+    installment_type INT NOT NULL,    /* if 1 online, 2 manual*/
     requested_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     requested_by INT,
-    requested_loan_status INT NOT NULL,
+    requested_loan_status INT NOT NULL, /* if 0 pending, 1 accpepted, 3 rejected*/
     FOREIGN KEY (loan_type) REFERENCES loan_types(type_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (requested_by) REFERENCES clerks(employee_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
@@ -443,15 +443,15 @@ CREATE TABLE requested_loans(
     PRIMARY KEY (request_id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='requested_loans';
 
-INSERT INTO requested_loans (loan_type, account_no, amount, branch_id, time_period, installment, requested_date, requested_by, requested_loan_status) values 
-(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0),
-(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0),
-(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0),
-(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0),
-(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0),
-(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0),
-(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0),
-(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0);
+INSERT INTO requested_loans (loan_type, account_no, amount, branch_id, time_period, installment, installment_type, requested_date, requested_by, requested_loan_status) values 
+(1, "22601003929", 24000.00, 1, 12, 2080.00,1, '2021-02-13 00:20:38', 2, 0),
+(1, "22601003929", 24000.00, 1, 12, 2080.00,1, '2021-02-13 00:20:38', 2, 0),
+(1, "22601003929", 24000.00, 1, 12, 2080.00,1, '2021-02-13 00:20:38', 2, 0),
+(1, "22601003929", 24000.00, 1, 12, 2080.00,1, '2021-02-13 00:20:38', 2, 0),
+(1, "22601003929", 24000.00, 1, 12, 2080.00,1, '2021-02-13 00:20:38', 2, 0),
+(1, "22601003929", 24000.00, 1, 12, 2080.00,2, '2021-02-13 00:20:38', 2, 0),
+(1, "22601003929", 24000.00, 1, 12, 2080.00,2, '2021-02-13 00:20:38', 2, 0),
+(1, "22601003929", 24000.00, 1, 12, 2080.00,2, '2021-02-13 00:20:38', 2, 0);
 
 
 CREATE TABLE loans(
@@ -463,6 +463,7 @@ CREATE TABLE loans(
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     time_period INT,
     installment FLOAT,
+    installment_type INT NOT NULL,    /* if 1 online, 2 manual*/
     loan_status INT NOT NULL,
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/,
@@ -526,10 +527,18 @@ CREATE TABLE loan_installment_banks(
     loan_id BIGINT NOT NULL,
     amount FLOAT NOT NULL,
     due_date DATE,
-    paid_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    paid_date TIMESTAMP,
+    installment_status INT NOT NULL, /* if 0 not paid, 1 paid */
     FOREIGN KEY (loan_id) REFERENCES loans(loan_id) /*ON DELETE SET NULL*/,
     PRIMARY KEY (installment_id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='loan_installment_banks';
+
+CREATE TABLE loan_transactions(
+    transaction_id INT NOT NULL PRIMARY KEY,
+    loan_id BIGINT NOT NULL,
+    FOREIGN KEY (loan_id) REFERENCES loans(loan_id), /*ON DELETE SET NULL*/
+    FOREIGN KEY (transaction_id) REFERENCES transaction_details(transaction_id) /*ON DELETE SET NULL*/
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='loan_transactions';
 
 CREATE TABLE loan_arrears(
     loan_id BIGINT NOT NULL,
@@ -538,7 +547,6 @@ CREATE TABLE loan_arrears(
     FOREIGN KEY (loan_id) REFERENCES loans(loan_id) /*ON DELETE SET NULL*/,
     PRIMARY KEY (loan_id,due_date)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='loan_arrears';
-
 
 SET GLOBAL event_scheduler='ON';
 
