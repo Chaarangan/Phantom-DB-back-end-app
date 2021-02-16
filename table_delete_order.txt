@@ -34,5 +34,8 @@ drop table customers;
 drop table admins;
 drop table employees;
 drop table branches;
-
+drop table atm_transactions;
+drop view online_deposit_view;
+drop view online_withdraw_view;
+drop table rejected_loans;
 show tables;

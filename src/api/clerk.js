@@ -19,7 +19,8 @@ const {
     getATMTransactions,
     getOnlineTransactions,
     getLoanTransactions,
-    createTransaction
+    createDepositTransaction,
+    createWithdrawTransaction
 } = require("../services/transaction");
 const {
     getRequestedLoans,
@@ -28,6 +29,10 @@ const {
     getOnlineLoans,
     getRejectedLoans
 } = require("../services/loan");
+const {
+    checkSavingAccount,
+    createFDAccount
+} = require("../services/fd")
 
 
 // ========= Auth ======= //
@@ -60,7 +65,10 @@ router.get("/transactions/online", verifyToken, isClerk, getOnlineTransactions, 
 router.get("/transactions/loan", verifyToken, isClerk, getLoanTransactions, async(req, res) => {
     res.status(200).json({response: req.transactions, status : 200});
 });
-router.get("/transactions/new", verifyToken, isClerk, createTransaction, async(req, res) => {
+router.post("/transactions/deposit", verifyToken, isClerk, createDepositTransaction, async(req, res) => {
+    res.status(200).json({response: req.message, status : 200});
+});
+router.post("/transactions/withdraw", verifyToken, isClerk, createWithdrawTransaction, async(req, res) => {
     res.status(200).json({response: req.message, status : 200});
 });
 
@@ -84,6 +92,16 @@ router.get("/loans", verifyToken, isClerk, getLoans, async(req, res) => {
 
 router.get("/loans/online", verifyToken, isClerk, getOnlineLoans, async(req, res) => {
     res.status(200).json({response: req.loans, status : 200});
+});
+
+
+
+// ========= Fixed Deposit ======= //
+router.post("/fixed-deposits/check-saving-account", verifyToken, isClerk, checkSavingAccount, async(req, res) => {
+    res.status(200).json({response: req.message, status : 200});
+});
+router.post("/fixed-deposits/new", verifyToken, isClerk, createFDAccount, async(req, res) => {
+    res.status(200).json({response: req.message, status : 200});
 });
 
 module.exports = router;

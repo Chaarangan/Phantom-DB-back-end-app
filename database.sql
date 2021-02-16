@@ -439,7 +439,7 @@ CREATE TABLE requested_loans(
     installment_type INT NOT NULL,    /* if 1 online, 2 manual*/
     requested_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     requested_by INT,
-    requested_loan_status INT NOT NULL, /* if 0 pending, 1 accpepted, 2 rejected*/
+    requested_loan_status INT NOT NULL, /* if 0 pending, 1 accepted, 2 rejected*/
     FOREIGN KEY (loan_type) REFERENCES loan_types(type_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (requested_by) REFERENCES clerks(employee_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
@@ -483,7 +483,7 @@ CREATE TABLE rejected_loans(
     request_id INT NOT NULL,
     reason TEXT,
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    loan_status INT NOT NULL, /* if 0 rejected if 1 accepted */
+    rejected_by INT,
     FOREIGN KEY (request_id) REFERENCES requested_loans(request_id) /*ON DELETE SET NULL*/
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='rejected_loans';
 
@@ -521,7 +521,7 @@ CREATE TABLE fixed_deposits(
     fd_status INT NOT NULL,
     FOREIGN KEY (plan_id) REFERENCES fixed_deposit_plans(plan_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (account_no) REFERENCES savings_accounts(account_no) /*ON DELETE SET NULL*/,
-    FOREIGN KEY (transaction_id) REFERENCES online_transactions(online_transaction_id) /*ON DELETE SET NULL*/,
+    FOREIGN KEY (transaction_id) REFERENCES transaction_details(transaction_id) /*ON DELETE SET NULL*/,
     PRIMARY KEY (fd_no)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='fixed_deposits';
 ALTER TABLE fixed_deposits AUTO_INCREMENT=11201003969;
@@ -607,6 +607,141 @@ CREATE VIEW online_withdraw_view AS
 
 
 
+-- get male female
+DELIMITER $$
+CREATE FUNCTION getGender(
+	gender_id INT
+) 
+RETURNS VARCHAR(8)
+DETERMINISTIC
+BEGIN
+    DECLARE gender VARCHAR(8);
+    IF gender_id <=> 1 THEN  
+        SET gender = "Male";
+    ELSE 
+        SET gender = "Female";
+	END IF;
+	RETURN (gender);
+END$$
+DELIMITER ;
+
+
+-- get status
+DELIMITER $$
+CREATE FUNCTION getStatus(
+	is_active INT
+) 
+RETURNS VARCHAR(12)
+DETERMINISTIC
+BEGIN
+    DECLARE isAvailable VARCHAR(12);
+    IF is_active <=> 0 THEN  
+        SET isAvailable = "Available";
+    ELSE
+        SET isAvailable = "Unavailable";
+	END IF;
+	RETURN (isAvailable);
+END$$
+DELIMITER ;
+
+
+-- get loan status
+DELIMITER $$
+CREATE FUNCTION getRequestedLoanStatus(
+	loan_status INT
+) 
+RETURNS VARCHAR(12)
+DETERMINISTIC
+BEGIN
+    DECLARE loanStatus VARCHAR(12);
+    IF loan_status <=> 0 THEN  
+        SET loanStatus = "Pending";
+    ELSEIF loan_status <=> 1 THEN
+        SET loanStatus = "Accepted";
+    ELSE
+        SET loanStatus = "Rejected";
+	END IF;
+	RETURN (loanStatus);
+END$$
+DELIMITER ;
+
+-- get loan type
+DELIMITER $$
+CREATE FUNCTION getLoanType(
+	loan_type_id INT
+) 
+RETURNS VARCHAR(64)
+DETERMINISTIC
+BEGIN
+    DECLARE loan_type VARCHAR(64);
+    SELECT 
+		lp.type_name INTO loan_type
+    FROM 
+		loan_types lp 
+	WHERE lp.type_id = loan_type_id;
+
+	RETURN (loan_type);
+END$$
+DELIMITER ;
+
+
+-- get installment type
+DELIMITER $$
+CREATE FUNCTION getInstallmentType(
+	installment_type_id INT
+) 
+RETURNS VARCHAR(12)
+DETERMINISTIC
+BEGIN
+    DECLARE installment_type VARCHAR(12);
+    IF installment_type_id <=> 1 THEN  
+        SET installment_type = "Online";
+    ELSE
+        SET installment_type = "Manual";
+	END IF;
+	RETURN (installment_type);
+END$$
+DELIMITER ;
+
+
+
+-- get employee name
+DELIMITER $$
+CREATE FUNCTION getEmployeeName(
+	employee_id INT
+) 
+RETURNS VARCHAR(64)
+DETERMINISTIC
+BEGIN
+    DECLARE employee_name VARCHAR(64);
+    SELECT 
+		CONCAT(e.first_name, " ", e.last_name) INTO employee_name
+    FROM 
+		employees e
+	WHERE e.employee_id = employee_id;
+
+	RETURN (employee_name);
+END$$
+DELIMITER ;
+
+
+-- get loan status
+DELIMITER $$
+CREATE FUNCTION getLoanStatus(
+	loan_status INT
+) 
+RETURNS VARCHAR(12)
+DETERMINISTIC
+BEGIN
+    DECLARE loanStatus VARCHAR(12);
+    IF loan_status <=> 0 THEN  
+        SET loanStatus = "Accepted";
+    ELSE
+        SET loanStatus = "Finished";
+	END IF;
+	RETURN (loanStatus);
+END$$
+DELIMITER ;
 
 
 DELIMITER $$

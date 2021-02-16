@@ -2,7 +2,7 @@ const sequelize = require("../../../helpers/sequelizer");
 
 const getClerks = async (req, res, next) => {
     try {
-        await sequelize.query("SELECT * FROM employees WHERE ((employee_id IN (SELECT * FROM clerks)) and (branch_id = ?))", {replacements: [req.user.branch_id]}).then(
+        await sequelize.query("SELECT employee_id, first_name, middle_name, last_name, address, nic, dob, getGender(gender) as gender, primary_contact_no, getBranch(branch_id) as branch_name, getStatus(is_active) as status FROM employees WHERE ((employee_id IN (SELECT * FROM clerks)) and (branch_id = ?))", {replacements: [req.user.branch_id]}).then(
             async (foundUsers) => {
                 if (foundUsers[0].length != 0) {                   
                     req.clerks = foundUsers;
@@ -21,7 +21,7 @@ const getClerks = async (req, res, next) => {
 
 const getClerkById = async (req, res, next) => {
     try {
-        await sequelize.query("SELECT * FROM employees WHERE (employee_id = ? and branch_id = ? and (employee_id in (SELECT * FROM clerks)))", {replacements : [req.params.clerk_id, req.user.branch_id]}).then(
+        await sequelize.query("SELECT employee_id, first_name, middle_name, last_name, address, nic, dob, getGender(gender) as gender, primary_contact_no, getBranch(branch_id) as branch_name, getStatus(is_active) as status FROM employees WHERE (employee_id = ? and branch_id = ? and (employee_id in (SELECT * FROM clerks)))", {replacements : [req.params.clerk_id, req.user.branch_id]}).then(
             async (foundUser) => {
                 if (foundUser[0].length != 0) {                   
                     req.clerk = foundUser;
