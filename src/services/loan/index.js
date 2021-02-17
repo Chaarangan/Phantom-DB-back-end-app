@@ -233,7 +233,7 @@ const getRejectedLoans = async (req, res, next) => {
         await sequelize.query("SELECT request_id, getLoanType(loan_type) as loan_type, account_no, amount, getBranch(branch_id) as branch_name, time_period, installment, getInstallmentType(installment_type) as installment_type, date, getEmployeeName(requested_by) as requested_by, getEmployeeName(rejected_by) as rejected_by, reason, getRequestedLoanStatus(requested_loan_status) as loan_status FROM rejected_loans LEFT JOIN requested_loans USING(request_id) ORDER BY request_id ASC").then(
             async (foundLoans) => {
                 if (foundLoans[0].length != 0) {                    
-                    req.loans = foundLoans[0][0];
+                    req.loans = foundLoans[0];
                     next();
                 }
                 else {
