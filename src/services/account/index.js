@@ -134,7 +134,7 @@ const createIndividualAccount = async (req, res, next) => {
 
 const getAccounts = async (req, res, next) => {
     try {
-        await sequelize.query("SELECT * FROM accounts ORDER BY account_no ASC").then(
+        await sequelize.query("SELECT account_no, balance, date_created, getAccountStatus(is_active) as account_status, getBranch(primary_branch_id) as branch_name FROM accounts ORDER BY account_no ASC").then(
             async (foundAccounts) => {
                 if (foundAccounts[0].length != 0) {
                     req.accounts = foundAccounts;
@@ -151,4 +151,24 @@ const getAccounts = async (req, res, next) => {
     }
 };
 
-module.exports = { getAccounts }
+
+const getCustomerAccounts = async (req, res, next) => {
+    try {
+        await sequelize.query("SELECT account_no, balance, date_created, getAccountStatus(is_active) as account_status, getBranch(primary_branch_id) as branch_name FROM accounts WHERE primary_customer_id = ? ORDER BY account_no ASC", {replacements : [req.user.customer_id]}).then(
+            async (foundAccounts) => {
+                if (foundAccounts[0].length != 0) {
+                    req.accounts = foundAccounts;
+                    next();
+                }
+                else {
+                    return res.status(404).json({ response: "No Accounts found!", status : 404});
+                }
+            }
+        );
+    } catch (e) {
+        console.log(e);
+        return res.status(400).json({status: 400, response: "Bad Request!"});
+    }
+};
+
+module.exports = { getAccounts, getCustomerAccounts }

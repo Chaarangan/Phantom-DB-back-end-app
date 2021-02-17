@@ -18,7 +18,7 @@ const login = async (req, res, next) => {
                             return res.status(401).json({ status: "error", message: 'Incorrect Password!', status : 401 });
                         }
                         else {
-                            await sequelize.query("SELECT * FROM individuals WHERE customer_id = ?", { replacements: [customer_id] }).then(
+                            await sequelize.query("SELECT customer_id, first_name, last_name, nic, dob, getGender(gender) as gender FROM individuals WHERE customer_id = ?", { replacements: [customer_id] }).then(
                                 async (foundUser) => {
                                     if (foundUser[0].length != 0) {
                                         var token = jwt.sign({ user: foundUser[0][0] }, config.secret, {

@@ -254,7 +254,6 @@ CREATE TABLE account_branches(
 
 
 
-
 INSERT INTO `account_branches` (`account_no`, `branch_id`) VALUES
 (22601003929, 1),
 (22601003929, 2),
@@ -605,8 +604,6 @@ CREATE VIEW online_withdraw_view AS
         transaction_details td
 	INNER JOIN online_transactions ot ON td.transaction_id = ot.withdrawal_id;
 
-
-
 -- get male female
 DELIMITER $$
 CREATE FUNCTION getGender(
@@ -740,6 +737,25 @@ BEGIN
         SET loanStatus = "Finished";
 	END IF;
 	RETURN (loanStatus);
+END$$
+DELIMITER ;
+
+
+-- get account status
+DELIMITER $$
+CREATE FUNCTION getAccountStatus(
+	is_active INT
+) 
+RETURNS VARCHAR(12)
+DETERMINISTIC
+BEGIN
+    DECLARE isActive VARCHAR(12);
+    IF is_active <=> 0 THEN  
+        SET isActive = "Active";
+    ELSE
+        SET isActive = "Inactive";
+	END IF;
+	RETURN (isActive);
 END$$
 DELIMITER ;
 
