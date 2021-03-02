@@ -222,6 +222,7 @@ CREATE TABLE savings_accounts(
     PRIMARY KEY(account_no)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='savings_accounts';
 
+--update interest
 DELIMITER $$
 CREATE EVENT updateInterest
 ON SCHEDULE EVERY 1 MINUTE  
@@ -230,6 +231,45 @@ DO
 BEGIN 
     update accounts inner join savings_accounts on accounts.account_no = savings_accounts.account_no inner join savings_account_plans on savings_account_plans.plan_id = savings_accounts.plan_id
     set accounts.balance = accounts.balance + accounts.balance*(savings_account_plans.interest/100);
+END; $$
+DELIMITER ;
+
+
+-- get withdrawal count status
+DELIMITER $$
+CREATE FUNCTION getWithdrawalCount(
+	accountNo BIGINT
+) 
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE canWithdraw INT;
+    DECLARE count INT;
+    SELECT 
+		sa.number_of_withdrawals INTO count
+    FROM 
+		savings_accounts sa
+    WHERE 
+        sa.account_no = accountNo;
+
+    IF count >= 5 THEN
+        SET canWithdraw = 0;
+    ELSE
+        SET canWithdraw = 1;
+    END IF;
+	RETURN canWithdraw;
+END$$
+DELIMITER ;
+
+
+-- set withdrawal to zero
+DELIMITER $$
+CREATE EVENT updateWithdrawalZero
+ON SCHEDULE EVERY 1 MINUTE  
+STARTS CURRENT_TIMESTAMP
+DO 
+BEGIN 
+    update savings_accounts SET number_of_withdrawals = 0 WHERE account_no > 0;
 END; $$
 DELIMITER ;
 
@@ -270,6 +310,43 @@ CREATE TABLE bank_transactions(
     FOREIGN KEY (transaction_id) REFERENCES transaction_details(transaction_id) /*ON DELETE SET NULL*/
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='bank_transactions';
 
+
+-- make bank transaction
+DELIMITER $$
+CREATE PROCEDURE makeBankTransaction(account_no BIGINT, amount FLOAT, transaction_type int, detail varchar(50), teller varchar(20), branch_id int)
+BEGIN
+    
+    DECLARE transId INT;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND, SQLWARNING
+    
+    BEGIN
+    
+        ROLLBACK;
+        GET DIAGNOSTICS CONDITION 1 @`errno` = MYSQL_ERRNO, @`sqlstate` = RETURNED_SQLSTATE, @`text` = MESSAGE_TEXT;
+        SET @full_error = CONCAT('ERROR ', @`errno`, ' (', @`sqlstate`, '): ', @`text`);
+        SELECT @full_error;
+    
+    END;
+
+    START TRANSACTION;
+
+        IF transaction_type <=> 1 THEN
+			UPDATE accounts a SET a.balance = a.balance - amount WHERE a.account_no = account_no;
+		ELSE
+			UPDATE accounts a SET a.balance = a.balance + amount WHERE a.account_no = account_no;
+		END IF;
+
+        INSERT INTO transaction_details (account_no, amount, withdraw, detail, date_time, teller, branch_id) values (account_no, amount, transaction_type, detail, CURRENT_TIMESTAMP, teller, branch_id);
+        SELECT LAST_INSERT_ID() INTO transId;
+        INSERT INTO bank_transactions SET transaction_id = transId;
+        
+        SELECT 'OK';
+        
+    COMMIT;
+END$$
+DELIMITER ;
+
+
 INSERT INTO bank_transactions (transaction_id) values 
 (1), 
 (3);
@@ -283,9 +360,45 @@ CREATE TABLE atm_transactions(
     FOREIGN KEY (transaction_id) REFERENCES transaction_details(transaction_id) /*ON DELETE SET NULL*/
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='atm_transactions';
 
+
+DELIMITER $$
+CREATE PROCEDURE makeAtmTransaction(account_no BIGINT, atm_id INT,  amount FLOAT, detail varchar(50), branch_id int)
+BEGIN
+    
+    DECLARE transId INT;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND, SQLWARNING
+    
+    BEGIN
+    
+        ROLLBACK;
+        GET DIAGNOSTICS CONDITION 1 @`errno` = MYSQL_ERRNO, @`sqlstate` = RETURNED_SQLSTATE, @`text` = MESSAGE_TEXT;
+        SET @full_error = CONCAT('ERROR ', @`errno`, ' (', @`sqlstate`, '): ', @`text`);
+        SELECT @full_error;
+    
+    END;
+
+    START TRANSACTION;
+
+        UPDATE accounts a SET a.balance = a.balance - amount WHERE a.account_no = account_no;
+
+        INSERT INTO transaction_details (account_no, amount, withdraw, detail, date_time, teller, branch_id) values (account_no, amount, 1, detail, CURRENT_TIMESTAMP, "atm", branch_id);
+        
+        SELECT LAST_INSERT_ID() INTO transId;
+        
+        INSERT INTO atm_transactions (transaction_id, atm_id) values (transId, atm_id);
+        
+        SELECT 'OK';
+        
+    COMMIT;
+END$$
+DELIMITER ;
+
 INSERT INTO atm_transactions (atm_transaction_id, transaction_id, atm_id) values 
 (1, 2, 145623987), 
 (2, 4, 123456789);
+
+
+
 
 -- through online portal
 CREATE TABLE online_transactions(
@@ -296,6 +409,43 @@ CREATE TABLE online_transactions(
 	FOREIGN KEY (deposit_id) REFERENCES transaction_details(transaction_id) /*ON DELETE SET NULL*/,
     PRIMARY KEY(online_transaction_id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='online_transactions';
+
+-- make online transaction
+DELIMITER $$
+CREATE PROCEDURE makeOnlineTransaction(from_account_no BIGINT, to_account_no BIGINT,  amount FLOAT, detail varchar(50), branch_id int)
+BEGIN
+    
+    DECLARE depositId INT;
+    DECLARE withdrawId INT;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND, SQLWARNING
+    
+    BEGIN
+    
+        ROLLBACK;
+        GET DIAGNOSTICS CONDITION 1 @`errno` = MYSQL_ERRNO, @`sqlstate` = RETURNED_SQLSTATE, @`text` = MESSAGE_TEXT;
+        SET @full_error = CONCAT('ERROR ', @`errno`, ' (', @`sqlstate`, '): ', @`text`);
+        SELECT @full_error;
+    
+    END;
+
+    START TRANSACTION;
+
+        UPDATE accounts a SET a.balance = a.balance - amount WHERE a.account_no = from_account_no;
+
+        UPDATE accounts a SET a.balance = a.balance + amount WHERE a.account_no = to_account_no;
+
+        INSERT INTO transaction_details (account_no, amount, withdraw, detail, date_time, teller, branch_id) values (from_account_no, amount, 1, detail, CURRENT_TIMESTAMP, "online", branch_id);
+        
+        SELECT LAST_INSERT_ID() INTO withdrawId;
+        INSERT INTO transaction_details (account_no, amount, withdraw, detail, date_time, teller, branch_id) values (to_account_no, amount, 2, detail, CURRENT_TIMESTAMP, "online", branch_id);
+        SELECT LAST_INSERT_ID() INTO depositId;
+        INSERT INTO online_transactions SET withdrawal_id = withdrawId, deposit_id = depositId;
+        
+        SELECT 'OK';
+        
+    COMMIT;
+END$$
+DELIMITER ;
 
 INSERT INTO online_transactions (online_transaction_id, withdrawal_id, deposit_id) values 
 (1, 5, 6);
@@ -412,7 +562,7 @@ STARTS CURRENT_TIMESTAMP
 DO 
 BEGIN 
     update accounts inner join fixed_deposits on accounts.account_no = fixed_deposits.account_no inner join fixed_deposit_plans on fixed_deposits.plan_id = fixed_deposit_plans.plan_id
-    set accounts.balance = accounts.balance + accounts.balance*(fixed_deposit_plans.interest/100);
+    set accounts.balance = accounts.balance + fixed_deposits.amount*(fixed_deposit_plans.interest/100);
 END; $$
 DELIMITER ;
 
