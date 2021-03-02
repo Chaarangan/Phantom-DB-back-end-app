@@ -1,40 +1,29 @@
 CREATE TABLE customers(
-    customer_id INT NOT NULL AUTO_INCREMENT,
-    is_active INT NOT NULL,
+    customer_id INT NOT NULL AUTO_INCREMENT,    
     address_line_1 VARCHAR(30),
     address_line_2 VARCHAR(30),
     address_line_3 VARCHAR(30),
     primary_email VARCHAR(50),
     primary_contact_no VARCHAR(10), 
-    customer_type INT NOT NULL,
+    customer_type INT NOT NULL, 
+    is_active INT NOT NULL,
     PRIMARY KEY(customer_id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='customers';
 
-INSERT INTO `customers` (`customer_id`, `is_active`, `address_line_1`, `address_line_2`, `address_line_3`, `primary_email`, `primary_contact_no`, `customer_type`) VALUES
-(1,0, '1st cross street', 'Germantown', 'Victoria', 'OliverJake@gmail.com', '1234567891',1),
-(2,0, 'Park Avenue', 'Florida', 'Marktown', 'AmeliaMargaret@gmail.com', '9876543211',1),
-(3,0, 'Queens Street', 'Parktown', 'Queensland', 'DamianWilliam@ymail.com', '5432167891',1),
-(4,0, 'Griffith Road', 'Brisbaner', 'Geogiana', 'IslaBethany@outlook.com', '1233214569',1),
-(5,0, 'Nathan Circular', 'Briginton', 'Griffith', 'info@uog.sh', '1234543211',2);
+INSERT INTO `customers` (`customer_id`, `address_line_1`, `address_line_2`, `address_line_3`, `primary_email`, `primary_contact_no`, `customer_type`, `is_active`) VALUES
+(1,'1st cross street', 'Germantown', 'Victoria', 'OliverJake@gmail.com', '1234567891',1,  0),
+(2,'Park Avenue', 'Florida', 'Marktown', 'AmeliaMargaret@gmail.com', '9876543211',1, 0),
+(3,'Queens Street', 'Parktown', 'Queensland', 'DamianWilliam@ymail.com', '5432167891',1,0),
+(4,'Griffith Road', 'Brisbaner', 'Geogiana', 'IslaBethany@outlook.com', '1233214569',1,0),
+(5,'Nathan Circular', 'Briginton', 'Griffith', 'info@uog.sh', '1234543211',2,0);
 
-CREATE TABLE customer_emails(  
-    customer_id INT NOT NULL,
-    email VARCHAR(50) NOT NULL,
-    FOREIGN KEY (customer_id) REFERENCES customers(customer_id) /*ON DELETE SET NULL*/
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='customer_emails';
-
-CREATE TABLE customer_contact_nos(  
-    customer_id INT NOT NULL,
-    contact_no VARCHAR(10) NOT NULL,
-    FOREIGN KEY (customer_id) REFERENCES customers(customer_id) /*ON DELETE SET NULL*/
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='customer_contact_nos';
 
 CREATE TABLE individuals(
     customer_id INT NOT NULL,
     first_name VARCHAR(20),
     last_name VARCHAR(20),
     middle_name VARCHAR(20),
-    nic VARCHAR(12) NOT NULL,
+    nic VARCHAR(12),
     dob DATE,
     gender INT(1),
     PRIMARY KEY(customer_id),
@@ -57,19 +46,6 @@ CREATE TABLE organizations(
 
 INSERT INTO `organizations` (`customer_id`, `name`, `bussiness_registration_number`) VALUES
 (5, 'University of Griffith', '22601929');
-
-CREATE TABLE organization_individuals(
-    organization_id INT NOT NULL,
-    individual_id INT NOT NULL,
-    FOREIGN KEY (organization_id) REFERENCES organizations(customer_id) /*ON DELETE SET NULL*/,
-    FOREIGN KEY (individual_id) REFERENCES individuals(customer_id) /*ON DELETE SET NULL*/
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='organization_individuals';
-
-INSERT INTO `organization_individuals` (`organization_id`, `individual_id`) VALUES
-(5, 1),
-(5, 2),
-(5, 3),
-(5, 4);
 
 
 CREATE TABLE customer_logins(
@@ -145,6 +121,7 @@ INSERT INTO branches(is_active,branch_name,location)  VALUES
 
 CREATE TABLE employees(
     employee_id INT NOT NULL AUTO_INCREMENT,
+    employee_type INT NOT NULL,  -- 1 manager 2 clerk
     first_name VARCHAR(20),
     is_active INT NOT NULL,
     middle_name VARCHAR(20),
@@ -159,21 +136,15 @@ CREATE TABLE employees(
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='employees';
 
-INSERT INTO `employees` (`employee_id`, `is_active`, `first_name`, `middle_name`, `last_name`, `address`, `nic`, `dob`, `gender`, `primary_contact_no`, `branch_id`) VALUES
-(1,0, 'John', 'Aniston', 'Smith', '123,Albert St, Victoria, Seychelles', '903611178V', '1969-12-26', '1', '0766220249', 1),
-(2,0, 'Emma', 'Ruthann', 'Marasco', '21,Capital City, Independence Ave, Seychelles', '933611178V', '1997-11-26', '2', '0716220249', 1),
-(3,0, 'Theresa', 'Amelia', 'May', '26,Park Road,Virginia', '697911178V', '1969-02-23', '2', '0766220249', 11),
-(4,0, 'Albert', 'William', 'Brethan', '12,German Town,New South Wales', '983672354V', '1998-01-08', '1', '0717303215', 11),
-(5,0, 'Admin', 'Admin', 'Admin', 'Mallavi', '123456789v', '1998-08-25', '1', '0771234567', 31);
+INSERT INTO `employees` (`employee_id`, `employee_type`, `is_active`, `first_name`, `middle_name`, `last_name`, `address`, `nic`, `dob`, `gender`, `primary_contact_no`, `branch_id`) VALUES
+(1,1, 0, 'John', 'Aniston', 'Smith', '123,Albert St, Victoria, Seychelles', '903611178V', '1969-12-26', '1', '0766220249', 1),
+(2,2, 0, 'Emma', 'Ruthann', 'Marasco', '21,Capital City, Independence Ave, Seychelles', '933611178V', '1997-11-26', '2', '0716220249', 1),
+(3,1, 0, 'Theresa', 'Amelia', 'May', '26,Park Road,Virginia', '697911178V', '1969-02-23', '2', '0766220249', 11),
+(4,2, 0, 'Albert', 'William', 'Brethan', '12,German Town,New South Wales', '983672354V', '1998-01-08', '1', '0717303215', 11),
+(5,2, 0, 'Admin', 'Admin', 'Admin', 'Mallavi', '123456789v', '1998-08-25', '1', '0771234567', 31);
 
 
-CREATE TABLE employee_contact_nos( 
-    employee_id INT NOT NULL,
-    contact_no VARCHAR(10) NOT NULL,
-    FOREIGN KEY (employee_id) REFERENCES employees(employee_id) /*ON DELETE SET NULL*/
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='employee_contact_nos';
-
-CREATE TABLE employee_logins(
+CREATE TABLE employee_logins(    
     employee_id INT NOT NULL,
     username VARCHAR(50) NOT NULL,
     password VARCHAR(100),
@@ -192,36 +163,6 @@ INSERT INTO `employee_logins` (`employee_id`, `username`, `password`, `recovery_
 (5, 'Admin', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '0112816336', 'albertbrethan@yahoo.com', '2020-01-01 00:19:56');
 
 
-
-CREATE TABLE admins(
-    employee_id INT NOT NULL,
-    PRIMARY KEY(employee_id),
-    FOREIGN KEY (employee_id) REFERENCES employees(employee_id) /*ON DELETE SET NULL*/
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='admins';
-
-INSERT INTO `admins` (`employee_id`) VALUES
-(5);
-
-CREATE TABLE managers(
-    employee_id INT NOT NULL,
-    PRIMARY KEY(employee_id),
-    FOREIGN KEY (employee_id) REFERENCES employees(employee_id) /*ON DELETE SET NULL*/
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='managers';
-
-INSERT INTO `managers` (`employee_id`) VALUES
-(1),
-(3);
-
-CREATE TABLE clerks(
-    employee_id INT NOT NULL,
-    PRIMARY KEY(employee_id),
-    FOREIGN KEY (employee_id) REFERENCES employees(employee_id) /*ON DELETE SET NULL*/
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='clerks';
-
-INSERT INTO `clerks` (`employee_id`) VALUES
-(2),
-(4);
-
 CREATE TABLE accounts(
     account_no BIGINT NOT NULL AUTO_INCREMENT,
     is_active INT NOT NULL,
@@ -238,70 +179,12 @@ ALTER TABLE accounts AUTO_INCREMENT=22601003929;
 
 INSERT INTO `accounts` (`account_no`,`is_active`, `balance`, `primary_customer_id`, `primary_branch_id`, `date_created`) VALUES
 (22601003929,0, -1800, 5, 1, '2020-01-02 00:17:47'),
-(22601003930,0, 0, 1, 1, '2020-01-02 00:19:56'),
-(22601003931,0, 0, 2, 1, '2020-01-02 00:20:38'),
-(22601003932,0, 0, 3, 1, '2020-01-02 00:21:56'),
-(22601003933,0, 0, 4, 1, '2020-01-02 00:22:50'),
-(22601003934,0, 0, 3, 1, '2020-01-02 00:23:27'),
+(22601003930,0, 1000, 1, 1, '2020-01-02 00:19:56'),
+(22601003931,0, 500, 2, 1, '2020-01-02 00:20:38'),
+(22601003932,0, 600, 3, 1, '2020-01-02 00:21:56'),
+(22601003933,0, 150, 4, 1, '2020-01-02 00:22:50'),
+(22601003934,0, 500, 3, 1, '2020-01-02 00:23:27'),
 (22601003935,0, -900, 4, 1,'2020-01-02 00:26:49');
-
-CREATE TABLE account_branches(   
-    account_no BIGINT NOT NULL,       
-    branch_id INT NOT NULL,
-    FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
-    FOREIGN KEY (Branch_ID) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='account_branches';
-
-
-
-INSERT INTO `account_branches` (`account_no`, `branch_id`) VALUES
-(22601003929, 1),
-(22601003929, 2),
-(22601003929, 5),
-(22601003929, 7),
-(22601003930, 1),
-(22601003930, 3),
-(22601003930, 7),
-(22601003931, 1),
-(22601003931, 5),
-(22601003931, 7),
-(22601003931, 12),
-(22601003932, 1),
-(22601003932, 9),
-(22601003932, 13),
-(22601003932, 15),
-(22601003933, 3),
-(22601003933, 6),
-(22601003933, 9),
-(22601003934, 1),
-(22601003934, 2),
-(22601003934, 3),
-(22601003934, 4),
-(22601003935, 1),
-(22601003935, 8),
-(22601003935, 12);
-
-
-CREATE TABLE customer_accounts( 
-    customer_id INT NOT NULL,
-    account_no BIGINT NOT NULL,
-    FOREIGN KEY (customer_id) REFERENCES customers(customer_id) /*ON DELETE SET NULL*/,
-    FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='customer_accounts';
-
-
-INSERT INTO `customer_accounts` (`customer_id`, `account_no`) VALUES
-(1, 22601003929),
-(2, 22601003929),
-(3, 22601003929),
-(4, 22601003929),
-(1, 22601003930),
-(2, 22601003931),
-(3, 22601003932),
-(4, 22601003933),
-(3, 22601003934),
-(4, 22601003935);
-
 
 CREATE TABLE checking_accounts( 
     account_no BIGINT NOT NULL,
@@ -312,22 +195,6 @@ CREATE TABLE checking_accounts(
 INSERT INTO `checking_accounts` (`account_no`) VALUES
 (22601003929),
 (22601003935);
-
-
-CREATE TABLE checkbooks(
-    checkbook_number INT NOT NULL AUTO_INCREMENT,
-    account_no BIGINT NOT NULL,
-    is_active INT NOT NULL,
-    issued_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    number_of_pages INT NOT NULL,
-    starting_check_number INT NOT NULL,
-    FOREIGN KEY (account_no) REFERENCES checking_accounts(account_no) /*ON DELETE SET NULL*/,
-    PRIMARY KEY(checkbook_number)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='checkbooks';
- 
-INSERT INTO `checkbooks` (`checkbook_number`, `is_active`, `account_no`, `issued_date`, `number_of_pages`, `starting_check_number`) VALUES
-(1,0, 22601003929, '2020-01-01 19:06:05', 100, 20200102),
-(2,0, 22601003935, '2020-01-01 19:07:24', 50, 20200202);
 
 
 CREATE TABLE savings_account_plans(
@@ -349,39 +216,37 @@ INSERT INTO `savings_account_plans` (`plan_id`, `account_plan`, `minimum_balance
 CREATE TABLE savings_accounts(
     account_no BIGINT NOT NULL,
     number_of_withdrawals INT CHECK (number_of_withdrawals <= 5),
-    account_plan_id INT NOT NULL,
-    FOREIGN KEY (account_plan_id) REFERENCES savings_account_plans(plan_id) /*ON DELETE SET NULL*/,
+    plan_id INT NOT NULL,
+    FOREIGN KEY (plan_id) REFERENCES savings_account_plans(plan_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
     PRIMARY KEY(account_no)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='savings_accounts';
 
-INSERT INTO `savings_accounts` (`account_no`, `number_of_withdrawals`, `account_plan_id`) VALUES
+DELIMITER $$
+CREATE EVENT updateInterest
+ON SCHEDULE EVERY 1 MINUTE  
+STARTS CURRENT_TIMESTAMP
+DO 
+BEGIN 
+    update accounts inner join savings_accounts on accounts.account_no = savings_accounts.account_no inner join savings_account_plans on savings_account_plans.plan_id = savings_accounts.plan_id
+    set accounts.balance = accounts.balance + accounts.balance*(savings_account_plans.interest/100);
+END; $$
+DELIMITER ;
+
+
+INSERT INTO `savings_accounts` (`account_no`, `number_of_withdrawals`, `plan_id`) VALUES
 (22601003930, 0, 3),
 (22601003931, 0, 2),
 (22601003932, 0, 4),
 (22601003933, 0, 3),
 (22601003934, 0, 1);
 
-CREATE TABLE child_savings_accounts(
-    account_no BIGINT NOT NULL,
-    first_name VARCHAR(20),
-    middle_name VARCHAR(20),
-    last_name VARCHAR(20),
-    dob DATE,
-    gender INT(1),
-    FOREIGN KEY (account_no) REFERENCES savings_accounts(account_no) /*ON DELETE SET NULL*/,
-    PRIMARY KEY(account_no,first_name,middle_name)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='child_savings_accounts';
-
-INSERT INTO `child_savings_accounts` (`account_no`, `first_name`, `middle_name`, `last_name`, `dob`, `gender`) VALUES
-(22601003934, 'Anabella', 'Nicole', 'Rose', '2013-01-23', '2');
-
 
 CREATE TABLE transaction_details(
     transaction_id INT AUTO_INCREMENT,
     account_no BIGINT NOT NULL,
     amount FLOAT NOT NULL,
-	withdraw BOOLEAN,
+	withdraw INT, -- if 1 withdraw else deposit
     detail VARCHAR(20),
     date_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     teller VARCHAR(20),
@@ -390,12 +255,24 @@ CREATE TABLE transaction_details(
     PRIMARY KEY(transaction_id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='transaction_details';
 
+INSERT INTO `transaction_details` (`transaction_id`, `account_no`, `amount`,`withdraw`,`detail`,`date_time`,`teller`,`branch_id`) VALUES
+(1, 22601003930, 10000, 1 , "done","2020-01-02 00:19:56",2,1),
+(2, 22601003931, 15000, 2 ,"done","2020-01-02 00:19:56","self",1),
+(3, 22601003932, 10500, 1,"done","2020-01-02 00:19:56",4,1),
+(4, 22601003933, 20200, 2,"done","2020-01-02 00:19:56","self",1),
+(5, 22601003934, 35060, 1,"done","2020-01-02 00:19:56","self",1),
+(6, 22601003934, 78965, 1,"done","2020-01-02 00:19:56","self",1);
+
 
 -- peoples deposit or withdraw money by visiting
 CREATE TABLE bank_transactions(
     transaction_id INT NOT NULL PRIMARY KEY,
     FOREIGN KEY (transaction_id) REFERENCES transaction_details(transaction_id) /*ON DELETE SET NULL*/
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='bank_transactions';
+
+INSERT INTO bank_transactions (transaction_id) values 
+(1), 
+(3);
 
 -- atm withdraw
 CREATE TABLE atm_transactions(
@@ -406,6 +283,10 @@ CREATE TABLE atm_transactions(
     FOREIGN KEY (transaction_id) REFERENCES transaction_details(transaction_id) /*ON DELETE SET NULL*/
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='atm_transactions';
 
+INSERT INTO atm_transactions (atm_transaction_id, transaction_id, atm_id) values 
+(1, 2, 145623987), 
+(2, 4, 123456789);
+
 -- through online portal
 CREATE TABLE online_transactions(
     online_transaction_id INT NOT NULL AUTO_INCREMENT,
@@ -415,6 +296,9 @@ CREATE TABLE online_transactions(
 	FOREIGN KEY (deposit_id) REFERENCES transaction_details(transaction_id) /*ON DELETE SET NULL*/,
     PRIMARY KEY(online_transaction_id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='online_transactions';
+
+INSERT INTO online_transactions (online_transaction_id, withdrawal_id, deposit_id) values 
+(1, 5, 6);
 
 CREATE TABLE loan_types( 
     type_id INT NOT NULL,       
@@ -427,47 +311,19 @@ INSERT INTO loan_types (type_id, type_name, interest_rate) values
 (1, "Farming Loan", 0.04), 
 (2, "Business Loan", 0.07);
 
-CREATE TABLE requested_loans(
-    request_id INT AUTO_INCREMENT,  
-    loan_type INT,    
-    account_no BIGINT NOT NULL,
-    amount FLOAT NOT NULL,
-    branch_id INT NOT NULL,
-    time_period INT NOT NULL,
-    installment FLOAT NOT NULL,
-    installment_type INT NOT NULL,    /* if 1 online, 2 manual*/
-    requested_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    requested_by INT,
-    requested_loan_status INT NOT NULL, /* if 0 pending, 1 accepted, 2 rejected*/
-    FOREIGN KEY (loan_type) REFERENCES loan_types(type_id) /*ON DELETE SET NULL*/,
-    FOREIGN KEY (requested_by) REFERENCES clerks(employee_id) /*ON DELETE SET NULL*/,
-    FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
-    FOREIGN KEY (branch_id) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/,
-    PRIMARY KEY (request_id)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='requested_loans';
-
-INSERT INTO requested_loans (loan_type, account_no, amount, branch_id, time_period, installment, installment_type, requested_date, requested_by, requested_loan_status) values 
-(1, "22601003929", 24000.00, 1, 12, 2080.00,1, '2021-02-13 00:20:38', 2, 0),
-(1, "22601003929", 24000.00, 1, 12, 2080.00,1, '2021-02-13 00:20:38', 2, 0),
-(1, "22601003929", 24000.00, 1, 12, 2080.00,1, '2021-02-13 00:20:38', 2, 0),
-(1, "22601003929", 24000.00, 1, 12, 2080.00,1, '2021-02-13 00:20:38', 2, 0),
-(1, "22601003929", 24000.00, 1, 12, 2080.00,1, '2021-02-13 00:20:38', 2, 0),
-(1, "22601003929", 24000.00, 1, 12, 2080.00,2, '2021-02-13 00:20:38', 2, 0),
-(1, "22601003929", 24000.00, 1, 12, 2080.00,2, '2021-02-13 00:20:38', 2, 0),
-(1, "22601003929", 24000.00, 1, 12, 2080.00,2, '2021-02-13 00:20:38', 2, 0);
-
 
 CREATE TABLE loans(
     loan_id BIGINT NOT NULL AUTO_INCREMENT,
-    account_no BIGINT NOT NULL,  
     loan_type INT,
+    account_no BIGINT NOT NULL,      
     amount FLOAT,
     branch_id INT,
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     time_period INT,
     installment FLOAT,
-    installment_type INT NOT NULL,    /* if 1 online, 2 manual*/
-    loan_status INT NOT NULL, /* if 0 ongoing if 1 finish */
+    requested_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    requested_by INT,
+    loan_status INT NOT NULL, /* if 0 pending 1 active  2 finished 3 rejected */
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (loan_type) REFERENCES loan_types(type_id) /*ON DELETE SET NULL*/,
@@ -475,16 +331,36 @@ CREATE TABLE loans(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='loans';
 ALTER TABLE loans AUTO_INCREMENT=11301003989;
 
--- INSERT INTO loans (account_no, loan_type, amount, branch_id, date, time_period, installment, loan_status) values 
--- ("22601003929", 1, 24000.00, 1, '2021-02-13 00:20:38', 12, 2080.00, 0);
 
-CREATE TABLE rejected_loans(
-    request_id INT NOT NULL,
-    reason TEXT,
-    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    rejected_by INT,
-    FOREIGN KEY (request_id) REFERENCES requested_loans(request_id) /*ON DELETE SET NULL*/
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='rejected_loans';
+DELIMITER $$
+CREATE FUNCTION calculateInstallment(
+	amount INT, 
+    plan_id INT,
+    time_period INT
+) 
+RETURNS FLOAT
+DETERMINISTIC
+BEGIN
+    DECLARE interest FLOAT;
+    SELECT 
+		lt.interest_rate INTO interest
+    FROM 
+		loan_types lt
+	WHERE lt.type_id = plan_id;
+
+	RETURN ((amount + (amount*interest))/time_period);
+END$$
+DELIMITER ;
+
+INSERT INTO loans (loan_type, account_no, amount, branch_id, time_period, installment, requested_date, requested_by, loan_status) values 
+(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0),
+(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0),
+(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 1),
+(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0),
+(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 1),
+(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0),
+(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 1),
+(1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0);
 
 
 CREATE TABLE bank_visit_loans( 
@@ -493,9 +369,10 @@ CREATE TABLE bank_visit_loans(
     approved_by INT,
     requested_by INT,
     FOREIGN KEY (loan_id) REFERENCES loans(loan_id) /*ON DELETE SET NULL*/,
-    FOREIGN KEY (approved_by) REFERENCES managers(employee_id) /*ON DELETE SET NULL*/,
-    FOREIGN KEY (requested_by) REFERENCES clerks(employee_id) /*ON DELETE SET NULL*/
+    FOREIGN KEY (approved_by) REFERENCES employees(employee_id) /*ON DELETE SET NULL*/,
+    FOREIGN KEY (requested_by) REFERENCES employees(employee_id) /*ON DELETE SET NULL*/
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='bank_visit_loans';
+
 
 CREATE TABLE fixed_deposit_plans(
     plan_id INT NOT NULL,
@@ -516,14 +393,30 @@ CREATE TABLE fixed_deposits(
     amount FLOAT NOT NULL,
     date_opened TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     plan_id INT NOT NULL,
-    transaction_id INT NOT NULL,
     fd_status INT NOT NULL,
     FOREIGN KEY (plan_id) REFERENCES fixed_deposit_plans(plan_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (account_no) REFERENCES savings_accounts(account_no) /*ON DELETE SET NULL*/,
-    FOREIGN KEY (transaction_id) REFERENCES transaction_details(transaction_id) /*ON DELETE SET NULL*/,
     PRIMARY KEY (fd_no)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='fixed_deposits';
 ALTER TABLE fixed_deposits AUTO_INCREMENT=11201003969;
+
+INSERT INTO `fixed_deposits` (`account_no`, `amount`, `date_opened`, `plan_id`, `fd_status`) VALUES
+(22601003932, 2000.00, '2021-02-13 00:20:38', 1, 0),
+(22601003930, 2500.00, '2021-02-13 00:20:38', 2, 0),
+(22601003931, 1500.00, '2021-02-13 00:20:38', 3, 0);
+
+DELIMITER $$
+CREATE EVENT updateInterestFD
+ON SCHEDULE EVERY 1 MINUTE  
+STARTS CURRENT_TIMESTAMP
+DO 
+BEGIN 
+    update accounts inner join fixed_deposits on accounts.account_no = fixed_deposits.account_no inner join fixed_deposit_plans on fixed_deposits.plan_id = fixed_deposit_plans.plan_id
+    set accounts.balance = accounts.balance + accounts.balance*(fixed_deposit_plans.interest/100);
+END; $$
+DELIMITER ;
+
+
 
 CREATE TABLE online_loans( 
     loan_id BIGINT NOT NULL,
@@ -559,7 +452,7 @@ CREATE TABLE loan_arrears(
     PRIMARY KEY (loan_id,due_date)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='loan_arrears';
 
-
+show tables;
 
 -- get branch names
 DELIMITER $$
@@ -767,12 +660,3 @@ BEGIN
 UPDATE accounts SET balance=(balance-((NEW.number_of_pages)*18)) WHERE account_no=NEW.account_no;
 END; $$
 DELIMITER ;
-
-CREATE VIEW managerOverview AS 
-select 
-	e.nic, 
-    getBranch(e.branch_id)
-from managers as m
-left join employees as e using(employee_id) 
-LEFT JOIN employee_logins as el using(employee_id)
-group by employee_id;
