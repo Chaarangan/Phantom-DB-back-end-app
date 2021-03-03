@@ -30,6 +30,7 @@ CREATE TABLE individuals(
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id) /*ON DELETE SET NULL*/
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='individuals';
 
+
 INSERT INTO `individuals` (`customer_id`, `first_name`, `last_name`, `middle_name`, `nic`, `dob`, `gender`) VALUES
 (1, 'Oliver', 'Jake', 'Noah', '123456789V', '1992-01-02', '1'),
 (2, 'Amelia', 'Emma', 'Margaret', '987654321V', '2000-01-15', '2'),
@@ -60,10 +61,10 @@ CREATE TABLE customer_logins(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='customer_logins';
 
 INSERT INTO `customer_logins` (`customer_id`, `username`, `password`, `recovery_contact_no`, `recovery_email`, `last_login`) VALUES
-(1, 'Customer', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '1234567891', 'OliverJake@gmail.com', '2020-01-02 00:19:56'),
-(2, 'ameliaemma', '8cb2237d0679ca88db6464eac60da96345513964', '9876543211', 'AmeliaMargaret@gmail.com', '2020-01-01 00:19:56'),
-(3, 'williamdamian', '8cb2237d0679ca88db6464eac60da96345513964', '5432167891', 'DamianWilliam@ymail.com', '2020-01-05 00:19:56'),
-(4, 'bethanysophia', '348162101fc6f7e624681b7400b085eeac6df7bd', '1233214569', 'IslaBethany@outlook.com', '2020-01-04 00:19:56');
+(1, 'Jeeva', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '1234567891', 'OliverJake@gmail.com', '2020-01-02 00:19:56'),
+(2, 'Vijay', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '9876543211', 'AmeliaMargaret@gmail.com', '2020-01-01 00:19:56'),
+(3, 'Ajith', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '5432167891', 'DamianWilliam@ymail.com', '2020-01-05 00:19:56'),
+(4, 'Surya', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '1233214569', 'IslaBethany@outlook.com', '2020-01-04 00:19:56');
 
 
 
@@ -133,7 +134,8 @@ CREATE TABLE employees(
     primary_contact_no VARCHAR(10) NOT NULL,
     branch_id INT NOT NULL,
     PRIMARY KEY(employee_id),
-    FOREIGN KEY (branch_id) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/
+    FOREIGN KEY (branch_id) REFERENCES branches(branch_id), /*ON DELETE SET NULL*/
+    INDEX id_type (employee_id, employee_type)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='employees';
 
 INSERT INTO `employees` (`employee_id`, `employee_type`, `is_active`, `first_name`, `middle_name`, `last_name`, `address`, `nic`, `dob`, `gender`, `primary_contact_no`, `branch_id`) VALUES
@@ -157,9 +159,9 @@ CREATE TABLE employee_logins(
 
 INSERT INTO `employee_logins` (`employee_id`, `username`, `password`, `recovery_contact_no`, `recovery_email`, `last_login`) VALUES
 (1, 'Charangan', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '0766220249', 'johnsmith@gmail.com', '2020-01-02 00:19:56'),
-(2, 'Volka', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '0716220249', 'emma@gmail.com', '2020-01-04 00:19:56'),
-(3, 'Manager', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '0717303215', 'theresamay@banka.com', '2020-01-07 00:19:56'),
-(4, 'Clerk', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '0112816336', 'albertbrethan@yahoo.com', '2020-01-01 00:19:56'),
+(2, 'Charly', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '0716220249', 'emma@gmail.com', '2020-01-04 00:19:56'),
+(3, 'Mike', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '0717303215', 'theresamay@banka.com', '2020-01-07 00:19:56'),
+(4, 'Chamath', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '0112816336', 'albertbrethan@yahoo.com', '2020-01-01 00:19:56'),
 (5, 'Admin', '$2b$10$qwUJdI745s87NMYeQtTbTuEuzF0c9636byqMCImXI6XxNxz842A7W', '0112816336', 'albertbrethan@yahoo.com', '2020-01-01 00:19:56');
 
 
@@ -172,7 +174,8 @@ CREATE TABLE accounts(
     date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (primary_branch_id) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (primary_customer_id) REFERENCES customers(customer_id) /*ON DELETE SET NULL*/,
-    PRIMARY KEY(account_no)
+    PRIMARY KEY(account_no),
+    INDEX account_status (account_no, is_active)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='accounts';
 ALTER TABLE accounts AUTO_INCREMENT=22601003929;
 
@@ -477,7 +480,8 @@ CREATE TABLE loans(
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (loan_type) REFERENCES loan_types(type_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (requested_by) REFERENCES employees(employee_id),
-    PRIMARY KEY (loan_id)
+    PRIMARY KEY (loan_id),
+    INDEX id_status (loan_id, loan_status)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='loans';
 ALTER TABLE loans AUTO_INCREMENT=11301003989;
 
@@ -486,7 +490,7 @@ INSERT INTO loans (loan_id, loan_type, account_no, amount, branch_id, time_perio
 (11301004000, 1, 22601003931, 25000.00, 1, 24 , calculateInstallment(25000.00, 1, 24),CURRENT_TIMESTAMP, 2 , 0 );
 
 
---approve loans
+
 DELIMITER $$
 CREATE PROCEDURE approveLoan(loan_id BIGINT, manager_id INT)
 BEGIN
@@ -542,7 +546,7 @@ END$$
 DELIMITER ;
 
 
---reject loan
+
 DELIMITER $$
 CREATE PROCEDURE rejectLoan(loan_id BIGINT, manager_id INT)
 BEGIN
@@ -672,7 +676,7 @@ INSERT INTO `fixed_deposits` (`account_no`, `amount`, `date_opened`, `plan_id`, 
 (22601003931, 1500.00, '2021-02-13 00:20:38', 3, 0);
 
 
---update fd interest
+
 DELIMITER $$
 CREATE EVENT updateInterestFD
 ON SCHEDULE EVERY 1 MINUTE  
@@ -702,7 +706,9 @@ CREATE TABLE loan_installment_banks(
     paid_date TIMESTAMP,
     installment_status INT NOT NULL, /* if 0 not paid, 1 paid */
     FOREIGN KEY (loan_id) REFERENCES loans(loan_id) /*ON DELETE SET NULL*/,
-    PRIMARY KEY (installment_id)
+    PRIMARY KEY (installment_id),
+    INDEX id_status (installment_id, installment_status),
+    INDEX loan_id_status (loan_id, installment_status)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='loan_installment_banks';
 
 CREATE TABLE loan_transactions(
@@ -918,13 +924,4 @@ BEGIN
 	END IF;
 	RETURN (isActive);
 END$$
-DELIMITER ;
-
-
-DELIMITER $$
-CREATE TRIGGER CheckBookCharge BEFORE INSERT ON checkbooks
-FOR EACH ROW
-BEGIN 
-UPDATE accounts SET balance=(balance-((NEW.number_of_pages)*18)) WHERE account_no=NEW.account_no;
-END; $$
 DELIMITER ;
