@@ -26,7 +26,8 @@ const {
     getBankVisitLoans,
     getLoans,
     getOnlineLoans,
-    getRejectedLoans
+    getRejectedLoans,
+    createLoanRequest
 } = require("../services/loan");
 const {
     checkSavingAccount,
@@ -70,6 +71,10 @@ router.post("/transactions/new", verifyToken, isClerk, createBankTransaction, as
 
 
 // ========= Loans ======= //
+router.post("/loans/new", verifyToken, isClerk, createLoanRequest, async(req, res) => {
+    res.status(200).json({response: req.message, status : 200});
+});
+
 router.get("/loans/requested", verifyToken, isClerk, getRequestedLoans, async(req, res) => {
     res.status(200).json({response: req.loans, status : 200});
 });

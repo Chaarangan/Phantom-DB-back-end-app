@@ -56,19 +56,13 @@ const createLoanRequest = async (req, res, next) => {
                 amount = req.body.amount,
                 branch_id = req.user.branch_id,
                 time_period = req.body.time_period,
-                installment_type = req.body.installment_type,
                 request_date = date.format(now, 'YYYY-MM-DD HH:mm:ss GMT+0530'),
                 request_by = req.user.employee_id;
                 
-        await sequelize.query("SELECT * FROM requested_loans WHERE requested_loan_status = 0 ORDER BY request_id ASC").then(
-            async (foundLoans) => {
-                if (foundLoans[0].length != 0) {
-                    req.loans = foundLoans;
-                    next();
-                }
-                else {
-                    return res.status(404).json({ response: "No Loan Requests found!", status : 404 });
-                }
+        await sequelize.query("INSERT INTO loans SET loan_type = ?, account_no = ?, amount = ?, branch_id = ?, time_period = ?, installment = calculateInstallment(" + amount + "," + loan_type + "," + time_period + "), requested_date = ?, request_by = ?, loan_status = ?", {replacements : [loan_type, account_no, amount, branch_id, time_period, request_date, request_by, 0]}).then(
+            async (results) => {    
+                req.message = "Success";
+                next();
             }
         );
     } catch (e) {
@@ -182,4 +176,4 @@ const getRejectedLoans = async (req, res, next) => {
     }
 };
 
-module.exports = { getRequestedLoans, approveLoanRequest, getBankVisitLoans, getLoans, getOnlineLoans, rejectLoanRequest, getRejectedLoans }
+module.exports = { createLoanRequest, getRequestedLoans, approveLoanRequest, getBankVisitLoans, getLoans, getOnlineLoans, rejectLoanRequest, getRejectedLoans }
