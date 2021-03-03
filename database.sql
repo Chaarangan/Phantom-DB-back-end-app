@@ -737,10 +737,6 @@ CREATE TABLE fixed_deposits(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='fixed_deposits';
 ALTER TABLE fixed_deposits AUTO_INCREMENT=11201003969;
 
-INSERT INTO fixed_deposits (fd_no, account_no, amount, date_opened, plan_id, fd_status) values 
-(22601003929, 5000.00, '2021-02-13 00:20:38', 1, 0),
-(22601003934, 5000.00, '2021-02-13 00:20:38', 1, 0);
-
 -- checkk minmum balance when request online loan
 DELIMITER $$
 CREATE FUNCTION checkMinFdBalance(
