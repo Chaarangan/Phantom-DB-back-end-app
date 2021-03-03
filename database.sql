@@ -365,7 +365,7 @@ CREATE TABLE atm_transactions(
 
 
 DELIMITER $$
-CREATE PROCEDURE makeAtmTransaction(account_no BIGINT, atm_id INT,  amount FLOAT, detail varchar(50), branch_id int)
+CREATE PROCEDURE makeAtmTransaction(account_no BIGINT, atm_id INT,  amount FLOAT, branch_id int)
 BEGIN
     
     DECLARE transId INT;
@@ -384,7 +384,7 @@ BEGIN
 
         UPDATE accounts a SET a.balance = a.balance - amount WHERE a.account_no = account_no;
 
-        INSERT INTO transaction_details (account_no, amount, withdraw, detail, date_time, teller, branch_id) values (account_no, amount, 1, detail, CURRENT_TIMESTAMP, "atm", branch_id);
+        INSERT INTO transaction_details (account_no, amount, withdraw, detail, date_time, teller, branch_id) values (account_no, amount, 1, "ATM Withdraw", CURRENT_TIMESTAMP, "atm", branch_id);
         
         SELECT LAST_INSERT_ID() INTO transId;
         
@@ -415,11 +415,16 @@ CREATE TABLE online_transactions(
 
 -- make online transaction
 DELIMITER $$
-CREATE PROCEDURE makeOnlineTransaction(from_account_no BIGINT, to_account_no BIGINT,  amount FLOAT, detail varchar(50), branch_id int)
+CREATE PROCEDURE makeOnlineTransaction(from_account_no BIGINT, to_account_no BIGINT,  amount FLOAT, detail varchar(50))
 BEGIN
     
     DECLARE depositId INT;
     DECLARE withdrawId INT;
+    declare balance FLOAT;
+
+    DECLARE from_branch INT;
+    DECLARE to_branch INT;
+    DECLARE track_no INT default 0;
     DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND, SQLWARNING
     
     BEGIN
@@ -427,25 +432,31 @@ BEGIN
         ROLLBACK;
         GET DIAGNOSTICS CONDITION 1 @`errno` = MYSQL_ERRNO, @`sqlstate` = RETURNED_SQLSTATE, @`text` = MESSAGE_TEXT;
         SET @full_error = CONCAT('ERROR ', @`errno`, ' (', @`sqlstate`, '): ', @`text`);
-        SELECT @full_error;
+        SELECT track_no, @full_error;
     
     END;
 
     START TRANSACTION;
 
-        UPDATE accounts a SET a.balance = a.balance - amount WHERE a.account_no = from_account_no;
+        SELECT a.primary_branch_id, a.balance INTO from_branch, balance FROM accounts a WHERE a.account_no = from_account_no;
+        IF balance >= amount THEN
+			SELECT a.primary_branch_id INTO to_branch FROM accounts a WHERE a.account_no = to_account_no;
 
-        UPDATE accounts a SET a.balance = a.balance + amount WHERE a.account_no = to_account_no;
+			UPDATE accounts a SET a.balance = a.balance - amount WHERE a.account_no = from_account_no;
 
-        INSERT INTO transaction_details (account_no, amount, withdraw, detail, date_time, teller, branch_id) values (from_account_no, amount, 1, detail, CURRENT_TIMESTAMP, "online", branch_id);
-        
-        SELECT LAST_INSERT_ID() INTO withdrawId;
-        INSERT INTO transaction_details (account_no, amount, withdraw, detail, date_time, teller, branch_id) values (to_account_no, amount, 2, detail, CURRENT_TIMESTAMP, "online", branch_id);
-        SELECT LAST_INSERT_ID() INTO depositId;
-        INSERT INTO online_transactions SET withdrawal_id = withdrawId, deposit_id = depositId;
-        
-        SELECT 'OK';
-        
+			UPDATE accounts a SET a.balance = a.balance + amount WHERE a.account_no = to_account_no;
+
+			INSERT INTO transaction_details (account_no, amount, withdraw, detail, date_time, teller, branch_id) values (from_account_no, amount, 1, detail, CURRENT_TIMESTAMP, "online", from_branch);
+			
+			SELECT LAST_INSERT_ID() INTO withdrawId;
+			INSERT INTO transaction_details (account_no, amount, withdraw, detail, date_time, teller, branch_id) values (to_account_no, amount, 2, detail, CURRENT_TIMESTAMP, "online", to_branch);
+			SELECT LAST_INSERT_ID() INTO depositId;
+			INSERT INTO online_transactions SET withdrawal_id = withdrawId, deposit_id = depositId;
+			
+			SELECT 'OK';
+		ELSE
+			SELECT 'Insufficient Balance!';
+        END IF;
     COMMIT;
 END$$
 DELIMITER ;

@@ -12,9 +12,11 @@ const {
     getCustomerAccounts
 } = require("../services/account");
 const {
-    createCustomerTransaction,
-    getCustomerTransactionsByAccount
+    createOnlineTransaction,
 } = require("../services/transaction");
+const {
+    withdrawAtm
+} = require("../services/atm");
 
 // ========= Auth ======= //
 router.post("/login", login, async(req, res) => {
@@ -29,10 +31,12 @@ router.get("/accounts", verifyToken, isCustomer, getCustomerAccounts, async(req,
 });
 
 // ========= Transactions ======= //
-router.post("/transactions", verifyToken, isCustomer, getCustomerTransactionsByAccount, async(req, res) => {
-    res.status(200).json({response: req.transactions, status : 200});
+router.post("/transactions/new", verifyToken, isCustomer, createOnlineTransaction, async(req, res) => {
+    res.status(200).json({response: req.message, status : 200});
 });
-router.post("/transactions/new", verifyToken, isCustomer, createCustomerTransaction, async(req, res) => {
+
+// ========= ATM ======= //
+router.post("/atm/new", verifyToken, isCustomer, withdrawAtm, async(req, res) => {
     res.status(200).json({response: req.message, status : 200});
 });
 

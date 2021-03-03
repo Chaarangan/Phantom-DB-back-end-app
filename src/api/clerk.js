@@ -19,8 +19,7 @@ const {
     getATMTransactions,
     getOnlineTransactions,
     getLoanTransactions,
-    createDepositTransaction,
-    createWithdrawTransaction
+    createBankTransaction
 } = require("../services/transaction");
 const {
     getRequestedLoans,
@@ -65,10 +64,7 @@ router.get("/transactions/online", verifyToken, isClerk, getOnlineTransactions, 
 router.get("/transactions/loan", verifyToken, isClerk, getLoanTransactions, async(req, res) => {
     res.status(200).json({response: req.transactions, status : 200});
 });
-router.post("/transactions/deposit", verifyToken, isClerk, createDepositTransaction, async(req, res) => {
-    res.status(200).json({response: req.message, status : 200});
-});
-router.post("/transactions/withdraw", verifyToken, isClerk, createWithdrawTransaction, async(req, res) => {
+router.post("/transactions/new", verifyToken, isClerk, createBankTransaction, async(req, res) => {
     res.status(200).json({response: req.message, status : 200});
 });
 

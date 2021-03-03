@@ -91,11 +91,11 @@ router.get("/loans/requested", verifyToken, isManager, getRequestedLoans, async(
     res.status(200).json({response: req.loans, status : 200});
 });
 
-router.put("/loans/requested/:request_id", verifyToken, isManager, approveLoanRequest, async(req, res) => {
+router.put("/loans/requested/:loan_id", verifyToken, isManager, approveLoanRequest, async(req, res) => {
     res.status(200).json({response: req.message, status : 200});
 });
 
-router.put("/loans/rejected/:request_id", verifyToken, isManager, rejectLoanRequest, async(req, res) => {
+router.put("/loans/rejected/:loan_id", verifyToken, isManager, rejectLoanRequest, async(req, res) => {
     res.status(200).json({response: req.message, status : 200});
 });
 
