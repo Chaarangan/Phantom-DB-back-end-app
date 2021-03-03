@@ -47,7 +47,7 @@ const createOnlineTransaction = async (req, res, next) => {
                     next();
                 }
                 else {
-                    return res.status(400).json({ response: results[0], status: 400 });
+                    return res.status(400).json({ response: "Failed!", status: 400 });
                 }
             });
     } catch (e) {

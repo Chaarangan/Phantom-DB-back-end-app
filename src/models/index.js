@@ -32,7 +32,6 @@ const initModels = async()=>{
     const loan_installment_bank = await require('./loan/loan_installment_bank');
     const loan_type = await require('./loan/loan_type');
     const online_loan = await require('./loan/online_loan');
-    const requested_loan = await require('./loan/requested_loan');
 
     const branch = await require('./branch');
 }
