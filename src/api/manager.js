@@ -125,7 +125,7 @@ router.get("/reports/transactions", verifyToken, isManager, transaction_report, 
 });
 
 router.get("/reports/loan-installments", verifyToken, isManager, loan_reports, async(req, res) => {
-    res.status(200).json({response: req.loans, status : 200});
+    res.status(200).json({response: req.foundInstallments, status : 200});
 });
 
 module.exports = router;
