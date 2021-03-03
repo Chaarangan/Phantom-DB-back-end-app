@@ -87,50 +87,50 @@ const createOnlineLoanRequest = async (req, res, next) => {
 
         await sequelize.query("SELECT checkFdOwner(?,?)", { replacements: [fd_no, requested_by] }).then(
             async (foundOwner) => {
-                const ress = foundOwner[0][0].res;    
-                if(ress == "OK"){
-                await sequelize.query("SELECT * from fixed_deposits WHERE fd_no = ?", { replacements: [fd_no] }).then(
-                async (foundFd) => {
-                    if (foundFd[0].length > 0) {                    
-                        const account_no = foundFd[0][0].account_no;
-                        await sequelize.query("SELECT checkMinFdBalance(?,?) as res", { replacements: [fd_no, amount] }).then(
-                            async (foundRes) => {
-                                const ress = foundRes[0][0].res;
-                                if (ress == "OK") {
-                                    await sequelize.query("SELECT calculateInstallment(?,?,?) as installment", { replacements: [amount, loan_type, time_period] }).then(
-                                        async (foundInstallment) => {
+                const ress = foundOwner[0][0].res;
+                if (ress == "OK") {
+                    await sequelize.query("SELECT * from fixed_deposits WHERE fd_no = ?", { replacements: [fd_no] }).then(
+                        async (foundFd) => {
+                            if (foundFd[0].length > 0) {
+                                const account_no = foundFd[0][0].account_no;
+                                await sequelize.query("SELECT checkMinFdBalance(?,?) as res", { replacements: [fd_no, amount] }).then(
+                                    async (foundRes) => {
+                                        const ress = foundRes[0][0].res;
+                                        if (ress == "OK") {
+                                            await sequelize.query("SELECT calculateInstallment(?,?,?) as installment", { replacements: [amount, loan_type, time_period] }).then(
+                                                async (foundInstallment) => {
 
-                                            const installment = foundInstallment[0][0].installment;
-                                            await sequelize.query("INSERT INTO loans SET loan_type = ?, account_no = ?, amount = ?, branch_id = ?, time_period = ?, installment = ?, requested_date = ?, requested_by = ?, loan_status = ?", { replacements: [loan_type, account_no, amount, branch_id, time_period, installment, request_date, requested_by, 1] }).then(
-                                                async (results) => {
-                                                    const loan_id = results[0];
-                                                    await sequelize.query("CALL approveOnlineLoan(" + loan_id + "," + fd_no + ")").then(
+                                                    const installment = foundInstallment[0][0].installment;
+                                                    await sequelize.query("INSERT INTO loans SET loan_type = ?, account_no = ?, amount = ?, branch_id = ?, time_period = ?, installment = ?, requested_date = ?, requested_by = ?, loan_status = ?", { replacements: [loan_type, account_no, amount, branch_id, time_period, installment, request_date, requested_by, 1] }).then(
                                                         async (results) => {
-                                                            if (results[0].message == "OK") {
-                                                                req.message = "Transfered Successfully!";
-                                                                next();
-                                                            }
-                                                            else {
-                                                                return res.status(404).json({ response: "Failed!", status: 404 });
-                                                            }
+                                                            const loan_id = results[0];
+                                                            await sequelize.query("CALL approveOnlineLoan(" + loan_id + "," + fd_no + ")").then(
+                                                                async (results) => {
+                                                                    if (results[0].message == "OK") {
+                                                                        req.message = "Transfered Successfully!";
+                                                                        next();
+                                                                    }
+                                                                    else {
+                                                                        return res.status(401).json({ response: "Failed!", status: 401 });
+                                                                    }
+                                                                }
+                                                            );
                                                         }
-                                                    );                                                
-                                                }
-                                            );
-                                        });
-                                }
-                                else {
-                                    return res.status(400).json({ status: 404, response: "Not Eligible" });
-                                }
-                            });
-                    }
-                    else {
-                        return res.status(404).json({ status: 404, response: "Not found FD account!" });
-                    }
-                });
+                                                    );
+                                                });
+                                        }
+                                        else {
+                                            return res.status(400).json({ status: 400, response: "Not Eligible" });
+                                        }
+                                    });
+                            }
+                            else {
+                                return res.status(404).json({ status: 404, response: "Not found FD account!" });
+                            }
+                        });
                 }
-                else{
-                    return res.status(404).json({ status: 400, response: "You are not a owner!" });
+                else {
+                    return res.status(400).json({ status: 400, response: "You are not a owner!" });
                 }
             });
     } catch (e) {
