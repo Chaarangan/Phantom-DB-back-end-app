@@ -295,7 +295,8 @@ CREATE TABLE transaction_details(
     teller VARCHAR(20),
     branch_id INT NOT NULL,
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
-    PRIMARY KEY(transaction_id)
+    PRIMARY KEY(transaction_id),
+    INDEX branch (branch_id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='transaction_details';
 
 INSERT INTO `transaction_details` (`transaction_id`, `account_no`, `amount`,`withdraw`,`detail`,`date_time`,`teller`,`branch_id`) VALUES
