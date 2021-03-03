@@ -468,7 +468,6 @@ CREATE TABLE loans(
     account_no BIGINT NOT NULL,      
     amount FLOAT,
     branch_id INT,
-    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     time_period INT,
     installment FLOAT,
     requested_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -477,11 +476,102 @@ CREATE TABLE loans(
     FOREIGN KEY (account_no) REFERENCES accounts(account_no) /*ON DELETE SET NULL*/,
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id) /*ON DELETE SET NULL*/,
     FOREIGN KEY (loan_type) REFERENCES loan_types(type_id) /*ON DELETE SET NULL*/,
+    FOREIGN KEY (requested_by) REFERENCES employees(employee_id),
     PRIMARY KEY (loan_id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='loans';
 ALTER TABLE loans AUTO_INCREMENT=11301003989;
 
+INSERT INTO loans (loan_id, loan_type, account_no, amount, branch_id, time_period, installment, requested_date,requested_by,loan_status) values 
+(11301003990, 1, 22601003930, 20000.00, 1, 12 , calculateInstallment(20000.00, 1, 12),CURRENT_TIMESTAMP, 2 , 0 ), 
+(11301004000, 1, 22601003931, 25000.00, 1, 24 , calculateInstallment(25000.00, 1, 24),CURRENT_TIMESTAMP, 2 , 0 );
 
+
+--approve loans
+DELIMITER $$
+CREATE PROCEDURE approveLoan(loan_id BIGINT, manager_id INT)
+BEGIN
+    
+    DECLARE account_no BIGINT;
+    DECLARE amount FLOAT;
+    DECLARE branch_id INT;
+    DECLARE transId INT;
+    DECLARE i INT DEFAULT 1;
+    DECLARE time_period INT;
+    DECLARE today TIMESTAMP;
+    DECLARE next_month TIMESTAMP;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND, SQLWARNING
+    
+    BEGIN
+    
+        ROLLBACK;
+        GET DIAGNOSTICS CONDITION 1 @`errno` = MYSQL_ERRNO, @`sqlstate` = RETURNED_SQLSTATE, @`text` = MESSAGE_TEXT;
+        SET @full_error = CONCAT('ERROR ', @`errno`, ' (', @`sqlstate`, '): ', @`text`);
+        SELECT @full_error;
+    
+    END;
+
+    START TRANSACTION;
+        SET today = CURRENT_TIMESTAMP;
+        UPDATE loans l SET l.loan_status = 1 WHERE l.loan_id = loan_id;
+
+        INSERT INTO bank_visit_loans (loan_id, approved_date, approved_by) values (loan_id, today, manager_id);
+
+        SELECT l.account_no, l.amount, l.branch_id, l.time_period INTO account_no, amount, branch_id, time_period FROM  loans l WHERE l.loan_id = loan_id; 
+
+        INSERT INTO transaction_details (account_no, amount, withdraw, detail, date_time, teller, branch_id) values (account_no, amount, 2, "Loan", today, "loan", branch_id);
+ 
+        SELECT LAST_INSERT_ID() INTO transId;
+   
+        INSERT INTO loan_transactions (transaction_id, loan_id) values (transId, loan_id);
+      
+        UPDATE accounts a SET a.balance = (a.balance + amount) WHERE a.account_no = account_no;
+	
+        SET next_month = (SELECT DATE_ADD(CURRENT_DATE(), INTERVAL 1 MONTH));
+ 
+        WHILE(i <= time_period) DO
+            INSERT INTO loan_installment_banks (loan_id, amount, due_date, paid_date, installment_status) values (loan_id, amount, next_month, null, 0);
+            SET next_month = (SELECT DATE_ADD(next_month, INTERVAL 1 MONTH));
+            SET i = i + 1;           
+		END WHILE;
+ 
+        SELECT 'OK';
+        
+    COMMIT;
+END$$
+DELIMITER ;
+
+
+--reject loan
+DELIMITER $$
+CREATE PROCEDURE rejectLoan(loan_id BIGINT, manager_id INT)
+BEGIN
+    
+    DECLARE today TIMESTAMP;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND, SQLWARNING
+    
+    BEGIN
+    
+        ROLLBACK;
+        GET DIAGNOSTICS CONDITION 1 @`errno` = MYSQL_ERRNO, @`sqlstate` = RETURNED_SQLSTATE, @`text` = MESSAGE_TEXT;
+        SET @full_error = CONCAT('ERROR ', @`errno`, ' (', @`sqlstate`, '): ', @`text`);
+        SELECT @full_error;
+    
+    END;
+
+    START TRANSACTION;
+
+        UPDATE loans l SET l.loan_status = 3 WHERE l.loan_id = loan_id;
+    
+        SELECT 'OK';
+        
+    COMMIT;
+END$$
+DELIMITER ;
+
+
+-- calculate installment
 DELIMITER $$
 CREATE FUNCTION calculateInstallment(
 	amount INT, 
@@ -517,10 +607,8 @@ CREATE TABLE bank_visit_loans(
     loan_id BIGINT NOT NULL,
     approved_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     approved_by INT,
-    requested_by INT,
     FOREIGN KEY (loan_id) REFERENCES loans(loan_id) /*ON DELETE SET NULL*/,
-    FOREIGN KEY (approved_by) REFERENCES employees(employee_id) /*ON DELETE SET NULL*/,
-    FOREIGN KEY (requested_by) REFERENCES employees(employee_id) /*ON DELETE SET NULL*/
+    FOREIGN KEY (approved_by) REFERENCES employees(employee_id) /*ON DELETE SET NULL*/
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='bank_visit_loans';
 
 
@@ -550,11 +638,41 @@ CREATE TABLE fixed_deposits(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='fixed_deposits';
 ALTER TABLE fixed_deposits AUTO_INCREMENT=11201003969;
 
+-- checkk minmum balance when request online loan
+DELIMITER $$
+CREATE FUNCTION checkMinFdBalance(
+	fd_no BIGINT,
+    req_amount FLOAT
+) 
+RETURNS VARCHAR(20)
+DETERMINISTIC
+BEGIN
+    DECLARE res VARCHAR(20);
+    DECLARE amount FLOAT;
+    SELECT 
+		fd.amount INTO amount
+    FROM 
+		fixed_deposits fd
+	WHERE fd.fd_no = fd_no;
+    
+    IF req_amount <= (amount*0.6) AND req_amount < 500000 THEN
+        SET res = "OK";
+    ELSE
+        SET res = "Not Qualified!";
+	END IF;
+	RETURN (res);
+END$$
+DELIMITER ;
+
+
+
 INSERT INTO `fixed_deposits` (`account_no`, `amount`, `date_opened`, `plan_id`, `fd_status`) VALUES
 (22601003932, 2000.00, '2021-02-13 00:20:38', 1, 0),
 (22601003930, 2500.00, '2021-02-13 00:20:38', 2, 0),
 (22601003931, 1500.00, '2021-02-13 00:20:38', 3, 0);
 
+
+--update fd interest
 DELIMITER $$
 CREATE EVENT updateInterestFD
 ON SCHEDULE EVERY 1 MINUTE  
