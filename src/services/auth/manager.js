@@ -19,7 +19,7 @@ const login = async (req, res, next) => {
                             return res.status(401).json({ accessToken: null, response: 'Incorrect Password!', status : 401});
                         }
                         else{
-                            await sequelize.query("SELECT employee_id, first_name, last_name, nic, primary_contact_no, branch_id, getBranch(branch_id) as branch_name, getStatus(is_active) as status FROM employees WHERE (employee_id = ? and (employee_id IN (SELECT * FROM managers)))", {replacements: [employee_id]}).then(
+                            await sequelize.query("SELECT employee_id, first_name, last_name, nic, primary_contact_no, branch_id, getBranch(branch_id) as branch_name, getStatus(is_active) as status FROM employees WHERE employee_id = ?", {replacements: [employee_id]}).then(
                                 async (foundUser) => {
                                     if (foundUser[0].length != 0) {
                                         var token = jwt.sign({ user: foundUser[0][0] }, config.secret, {
@@ -86,11 +86,7 @@ const updateProfile = async (req, res, next) => {
                                 replacements : [ first_name, middle_name, last_name, address, primary_contact_no, user_id]
                             });
 
-                        await sequelize.query("UPDATE employee_contact_nos SET contact_no = ? WHERE employee_id = ?",
-                            {
-                                replacements : [primary_contact_no, user_id]
-                            }
-                        );
+                        
 
                         const   recovery_email = req.body.recovery_email,
                                 recovery_contact_no = req.body.recovery_contact_no;                                    
