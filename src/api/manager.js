@@ -34,7 +34,10 @@ const {
     rejectLoanRequest,
     getRejectedLoans
 } = require("../services/loan");
-
+const {
+    transaction_report,
+    loan_reports
+} = require("../services/report");
 
 
 // ========= Auth ======= //
@@ -115,5 +118,14 @@ router.get("/loans/online", verifyToken, isManager, getOnlineLoans, async(req, r
     res.status(200).json({response: req.loans, status : 200});
 });
 
+
+// ========= Report ======= //
+router.get("/reports/transactions", verifyToken, isManager, transaction_report, async(req, res) => {
+    res.status(200).json({response: req.transactions, status : 200});
+});
+
+router.get("/reports/loan-installments", verifyToken, isManager, loan_reports, async(req, res) => {
+    res.status(200).json({response: req.loans, status : 200});
+});
 
 module.exports = router;
