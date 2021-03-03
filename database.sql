@@ -1022,3 +1022,21 @@ BEGIN
 	RETURN (typeName);
 END$$
 DELIMITER ;
+
+-- installment status
+DELIMITER $$
+CREATE FUNCTION getInstallmentStatus(
+	installment_status INT
+) 
+RETURNS VARCHAR(12)
+DETERMINISTIC
+BEGIN
+    DECLARE i_status VARCHAR(12);
+    IF installment_status <=> 1 THEN  
+        SET i_status = "Paid";
+    ELSE
+        SET i_status = "Unpaid";
+	END IF;
+	RETURN (i_status);
+END$$
+DELIMITER ;
