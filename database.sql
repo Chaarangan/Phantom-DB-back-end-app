@@ -820,26 +820,6 @@ END$$
 DELIMITER ;
 
 
--- get loan status
-DELIMITER $$
-CREATE FUNCTION getRequestedLoanStatus(
-	loan_status INT
-) 
-RETURNS VARCHAR(12)
-DETERMINISTIC
-BEGIN
-    DECLARE loanStatus VARCHAR(12);
-    IF loan_status <=> 0 THEN  
-        SET loanStatus = "Pending";
-    ELSEIF loan_status <=> 1 THEN
-        SET loanStatus = "Accepted";
-    ELSE
-        SET loanStatus = "Rejected";
-	END IF;
-	RETURN (loanStatus);
-END$$
-DELIMITER ;
-
 -- get loan type
 DELIMITER $$
 CREATE FUNCTION getLoanType(
@@ -910,9 +890,13 @@ DETERMINISTIC
 BEGIN
     DECLARE loanStatus VARCHAR(12);
     IF loan_status <=> 0 THEN  
+        SET loanStatus = "Pending";
+    ELSEIF loan_status <=> 1 THEN
         SET loanStatus = "Accepted";
-    ELSE
+    ELSEIF loan_status <=> 2 THEN
         SET loanStatus = "Finished";
+    ELSE
+        SET loanStatus = "Rejected";
 	END IF;
 	RETURN (loanStatus);
 END$$

@@ -23,11 +23,8 @@ const initModels = async()=>{
     const organization = await require('./customer/organization'); 
     const organization_individual = await require('./customer/organization_individual'); 
 
-    const clerk = await require('./employee/clerk'); 
     const employee = await require('./employee/employee'); 
-    const employee_contact_no = await require('./employee/employee_contact_no'); 
     const employee_login = await require('./employee/employee_login'); 
-    const manager = await require('./employee/manager'); 
 
     const bank_visit_loan = await require('./loan/bank_visit_loan');
     const loan = await require('./loan/loan');

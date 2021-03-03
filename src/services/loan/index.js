@@ -79,7 +79,7 @@ const createLoanRequest = async (req, res, next) => {
 
 const getRequestedLoans = async (req, res, next) => {
     try {
-        await sequelize.query("SELECT request_id, getLoanType(loan_type) as loan_type, account_no, amount, getBranch(branch_id) as branch_name, time_period, installment, getInstallmentType(installment_type) as installment_type, requested_date, getEmployeeName(requested_by) as requested_by, getRequestedLoanStatus(requested_loan_status) as request_status  FROM requested_loans WHERE requested_loan_status = 0 ORDER BY request_id ASC").then(
+        await sequelize.query("SELECT loan_id, getLoanType(loan_type) as loan_type, account_no, amount, getBranch(branch_id) as branch_name, time_period, installment, requested_date, getEmployeeName(requested_by) as requested_by, getLoanStatus(loan_status) as loan_status  FROM loans WHERE loan_status = 0 ORDER BY loan_id ASC").then(
             async (foundLoans) => {
                 if (foundLoans[0].length != 0) {
                     req.loans = foundLoans;
@@ -96,10 +96,31 @@ const getRequestedLoans = async (req, res, next) => {
     }
 };
 
+const getLoans = async (req, res, next) => {
+    try {
+        await sequelize.query("SELECT loan_id, getLoanType(loan_type) as loan_type, account_no, amount, getBranch(branch_id) as branch_name, time_period, installment, requested_date, getEmployeeName(requested_by) as requested_by, getLoanStatus(loan_status) as loan_status  FROM loans WHERE loan_status = 1 ORDER BY loan_id ASC").then(
+            async (foundLoans) => {
+                if (foundLoans[0].length != 0) {
+                    req.loans = foundLoans;
+                    next();
+                }
+                else {
+                    return res.status(404).json({ response: "No Loans found!", status : 404 });
+                }
+            }
+        );
+    } catch (e) {
+        console.log(e);
+        return res.status(400).json({status: 400, response: "Bad Request!"});
+    }
+};
+
+
+
 
 const getBankVisitLoans = async (req, res, next) => {
     try {
-        await sequelize.query("SELECT loan_id, getLoanType(loan_type) as loan_type, account_no, amount, getBranch(branch_id) as branch_name, time_period, installment, getInstallmentType(installment_type) as installment_type, approved_date, getEmployeeName(requested_by) as requested_by, getEmployeeName(approved_by) as approved_by, getLoanStatus(loan_status) as loan_status FROM bank_visit_loans left join loans using (loan_id) ORDER BY loan_id ASC").then(
+        await sequelize.query("SELECT loan_id, getLoanType(loan_type) as loan_type, account_no, amount, getBranch(branch_id) as branch_name, time_period, installment, requested_date, getEmployeeName(requested_by) as requested_by, getLoanStatus(loan_status) as loan_status  FROM bank_visit_loans left join loans using(loan_id) WHERE loan_status = 1 ORDER BY loan_id ASC").then(
             async (foundLoans) => {
                 if (foundLoans[0].length != 0) {
                     req.loans = foundLoans;
@@ -117,28 +138,11 @@ const getBankVisitLoans = async (req, res, next) => {
 };
 
 
-const getLoans = async (req, res, next) => {
-    try {
-        await sequelize.query("SELECT loan_id, getLoanType(loan_type) as loan_type, account_no, amount, getBranch(branch_id) as branch_name, date, time_period, installment, getInstallmentType(installment_type) as installment_type, getLoanStatus(loan_status) as loan_status FROM loans ORDER BY loan_id ASC").then(
-            async (foundLoans) => {
-                if (foundLoans[0].length != 0) {
-                    req.loans = foundLoans;
-                    next();
-                }
-                else {
-                    return res.status(404).json({ response: "No Loans found!", status : 404 });
-                }
-            }
-        );
-    } catch (e) {
-        console.log(e);
-        return res.status(400).json({status: 400, response: "Bad Request!"});
-    }
-};
+
 
 const getOnlineLoans = async (req, res, next) => {
     try {
-        await sequelize.query("SELECT loan_id, getLoanType(loan_type) as loan_type, account_no, fd_no, amount, getBranch(branch_id) as branch_name, time_period, installment, getInstallmentType(installment_type) as installment_type, date, getLoanStatus(loan_status) as loan_status FROM online_loans left join loans using (loan_id) ORDER BY loan_id ASC").then(
+        await sequelize.query("SELECT loan_id, getLoanType(loan_type) as loan_type, account_no, amount, getBranch(branch_id) as branch_name, time_period, installment, requested_date, getEmployeeName(requested_by) as requested_by, getLoanStatus(loan_status) as loan_status  FROM online_loans left join loans using(loan_id) WHERE loan_status = 1 ORDER BY loan_id ASC").then(
             async (foundLoans) => {
                 if (foundLoans[0].length != 0) {
                     req.loans = foundLoans;
@@ -161,7 +165,7 @@ const getOnlineLoans = async (req, res, next) => {
 
 const getRejectedLoans = async (req, res, next) => {
     try {                      
-        await sequelize.query("SELECT request_id, getLoanType(loan_type) as loan_type, account_no, amount, getBranch(branch_id) as branch_name, time_period, installment, getInstallmentType(installment_type) as installment_type, date, getEmployeeName(requested_by) as requested_by, getEmployeeName(rejected_by) as rejected_by, reason, getRequestedLoanStatus(requested_loan_status) as loan_status FROM rejected_loans LEFT JOIN requested_loans USING(request_id) ORDER BY request_id ASC").then(
+        await sequelize.query("SELECT loan_id, getLoanType(loan_type) as loan_type, account_no, amount, getBranch(branch_id) as branch_name, time_period, installment, requested_date, getEmployeeName(requested_by) as requested_by, getLoanStatus(loan_status) as loan_status  FROM loans WHERE loan_status = 3 ORDER BY loan_id ASC").then(
             async (foundLoans) => {
                 if (foundLoans[0].length != 0) {                    
                     req.loans = foundLoans[0];
