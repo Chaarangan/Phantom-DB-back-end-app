@@ -35,7 +35,7 @@ const isAdmin = (req, res, next) => {
 
 
 const isManager = (req, res, next) => {
-    sequelize.query("SELECT * FROM managers WHERE employee_id = ?", {replacements : [req.user.employee_id]}).then(
+    sequelize.query("SELECT * FROM employees WHERE (employee_id = ? and employee_type = ?)", {replacements : [req.user.employee_id, 1]}).then(
         async (foundUser) => {
             if (foundUser[0].length == 0) {
                 return res.status(403).json({ response : "Require Manager Role!" });                                               
@@ -48,7 +48,7 @@ const isManager = (req, res, next) => {
 };
 
 const isClerk = (req, res, next) => {
-    sequelize.query("SELECT * FROM clerks WHERE employee_id = ?", {replacements : [req.user.employee_id]}).then(
+    sequelize.query("SELECT * FROM employees WHERE (employee_id = ? and employee_type = ?)", {replacements : [req.user.employee_id, 2]}).then(
         async (foundUser) => {
             if (foundUser[0].length == 0) {
                 return res.status(403).json({ response : "Require Clerk Role!" });                                               

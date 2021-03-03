@@ -4,7 +4,6 @@ const initModels = async()=>{
     const account = await require('./account/account'); 
     const atm_withdrawal = await require('./account/atm_withdrawal'); 
     const bank_transaction = await require('./account/bank_transaction'); 
-    const checkbook = await require('./account/checkbook'); 
     const checking_account = await require('./account/checking_account'); 
     const child_savings_account = await require('./account/child_savings_account'); 
     const customer_account = await require('./account/customer_account'); 
@@ -16,8 +15,6 @@ const initModels = async()=>{
     const transaction_detail = await require('./account/transaction_detail'); 
       
     const customer = await require('./customer/customer');
-    const customer_contact_no = await require('./customer/customer_contact_no'); 
-    const customer_email = await require('./customer/customer_email'); 
     const customer_login = await require('./customer/customer_login'); 
     const individual = await require('./customer/individual'); 
     const organization = await require('./customer/organization'); 

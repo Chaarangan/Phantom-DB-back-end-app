@@ -98,7 +98,7 @@ const getRequestedLoans = async (req, res, next) => {
 
 const getLoans = async (req, res, next) => {
     try {
-        await sequelize.query("SELECT loan_id, getLoanType(loan_type) as loan_type, account_no, amount, getBranch(branch_id) as branch_name, time_period, installment, requested_date, getEmployeeName(requested_by) as requested_by, getLoanStatus(loan_status) as loan_status  FROM loans WHERE loan_status = 1 ORDER BY loan_id ASC").then(
+        await sequelize.query("SELECT loan_id, getLoanType(loan_type) as loan_type, account_no, amount, getBranch(branch_id) as branch_name, time_period, installment, requested_date, getEmployeeName(requested_by) as requested_by, getLoanStatus(loan_status) as loan_status  FROM loans ORDER BY loan_id ASC").then(
             async (foundLoans) => {
                 if (foundLoans[0].length != 0) {
                     req.loans = foundLoans;

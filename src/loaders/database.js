@@ -1,5 +1,5 @@
 const sequelize = require('../helpers/sequelizer');
-const initModels = require('../models');
+// const initModels = require('../models');
 /**
  * Init database configuration
  * @return {void} 
@@ -11,7 +11,7 @@ const databaseLoader = async ()=>{
       } catch (error) {
         console.error('Unable to connect to the database:', error);
     }
-    await initModels();
+    //await initModels();
 }
 
 module.exports = databaseLoader;
