@@ -13,7 +13,7 @@ const approveLoanRequest = async (req, res, next) => {
                     next();                    
                 }
                 else {
-                    return res.status(404).json({ response: results[0], status : 404});
+                    return res.status(404).json({ response: "Failed!", status : 404});
                 }
             }
         );
@@ -37,7 +37,7 @@ const rejectLoanRequest = async (req, res, next) => {
                     next();
                 }
                 else {
-                    return res.status(400).json({ response: results[0], status : 400 });
+                    return res.status(400).json({ response: "Failed!", status : 400 });
                 }
             }
         );
