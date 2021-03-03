@@ -225,7 +225,7 @@ CREATE TABLE savings_accounts(
     PRIMARY KEY(account_no)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='savings_accounts';
 
---update interest
+-- update interest
 DELIMITER $$
 CREATE EVENT updateInterest
 ON SCHEDULE EVERY 1 MINUTE  
@@ -485,6 +485,28 @@ CREATE TABLE loans(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='loans';
 ALTER TABLE loans AUTO_INCREMENT=11301003989;
 
+-- calculate installment
+DELIMITER $$
+CREATE FUNCTION calculateInstallment(
+	amount INT, 
+    plan_id INT,
+    time_period INT
+) 
+RETURNS FLOAT
+DETERMINISTIC
+BEGIN
+    DECLARE interest FLOAT;
+    SELECT 
+		lt.interest_rate INTO interest
+    FROM 
+		loan_types lt
+	WHERE lt.type_id = plan_id;
+
+	RETURN ((amount + (amount*interest))/time_period);
+END$$
+DELIMITER ;
+
+
 INSERT INTO loans (loan_id, loan_type, account_no, amount, branch_id, time_period, installment, requested_date,requested_by,loan_status) values 
 (11301003990, 1, 22601003930, 20000.00, 1, 12 , calculateInstallment(20000.00, 1, 12),CURRENT_TIMESTAMP, 2 , 0 ), 
 (11301004000, 1, 22601003931, 25000.00, 1, 24 , calculateInstallment(25000.00, 1, 24),CURRENT_TIMESTAMP, 2 , 0 );
@@ -574,27 +596,6 @@ BEGIN
 END$$
 DELIMITER ;
 
-
--- calculate installment
-DELIMITER $$
-CREATE FUNCTION calculateInstallment(
-	amount INT, 
-    plan_id INT,
-    time_period INT
-) 
-RETURNS FLOAT
-DETERMINISTIC
-BEGIN
-    DECLARE interest FLOAT;
-    SELECT 
-		lt.interest_rate INTO interest
-    FROM 
-		loan_types lt
-	WHERE lt.type_id = plan_id;
-
-	RETURN ((amount + (amount*interest))/time_period);
-END$$
-DELIMITER ;
 
 INSERT INTO loans (loan_type, account_no, amount, branch_id, time_period, installment, requested_date, requested_by, loan_status) values 
 (1, "22601003929", 24000.00, 1, 12, 2080.00, '2021-02-13 00:20:38', 2, 0),
@@ -726,7 +727,6 @@ CREATE TABLE loan_arrears(
     PRIMARY KEY (loan_id,due_date)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='loan_arrears';
 
-show tables;
 
 -- get branch names
 DELIMITER $$
