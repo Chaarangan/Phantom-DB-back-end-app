@@ -1007,3 +1007,22 @@ BEGIN
 	RETURN (isActive);
 END$$
 DELIMITER ;
+
+
+-- get transaction status
+DELIMITER $$
+CREATE FUNCTION getTransactionStatus(
+	type_id INT
+) 
+RETURNS VARCHAR(12)
+DETERMINISTIC
+BEGIN
+    DECLARE typeName VARCHAR(12);
+    IF type_id <=> 1 THEN  
+        SET typeName = "Withdraw";
+    ELSE
+        SET typeName = "Deposit";
+	END IF;
+	RETURN (typeName);
+END$$
+DELIMITER ;

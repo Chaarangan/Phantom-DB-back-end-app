@@ -3,10 +3,9 @@ const sequelize = require("../../helpers/sequelizer");
 const transaction_report = async (req, res, next) => {
     const branch_id = req.user.branch_id;
     try {
-        await sequelize.query("SELECT * from transaction_details WHERE branch_id = ?", { replacements: [branch_id] }).then(
+        await sequelize.query("SELECT transaction_id, account_no, amount, getTransactionStatus(withdraw) as transfer_type, detail, date_time FROM transaction_details WHERE branch_id = ? ORDER BY transaction_id ASC", { replacements: [branch_id] }).then(
             async (foundTransactions) => {
                 req.transactions = foundTransactions;
-                console.log(foundTransactions);
                 next();
             });
     } catch (e) {
