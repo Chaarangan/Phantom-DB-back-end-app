@@ -578,6 +578,88 @@ BEGIN
 END$$
 DELIMITER ;
 
+-- approve online loan
+DELIMITER $$
+CREATE PROCEDURE approveOnlineLoan(loan_id BIGINT, fd_no BIGINT)
+BEGIN
+    
+    DECLARE account_no BIGINT;
+    DECLARE amount FLOAT;
+    DECLARE branch_id INT;
+    DECLARE transId INT;
+    DECLARE i INT DEFAULT 1;
+    DECLARE time_period INT;
+    DECLARE today TIMESTAMP;
+    DECLARE next_month TIMESTAMP;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND, SQLWARNING
+    
+    BEGIN
+    
+        ROLLBACK;
+        GET DIAGNOSTICS CONDITION 1 @`errno` = MYSQL_ERRNO, @`sqlstate` = RETURNED_SQLSTATE, @`text` = MESSAGE_TEXT;
+        SET @full_error = CONCAT('ERROR ', @`errno`, ' (', @`sqlstate`, '): ', @`text`);
+        SELECT @full_error as message;
+    
+    END;
+
+    START TRANSACTION;
+        SET today = CURRENT_TIMESTAMP;
+
+        SELECT l.account_no, l.amount, l.branch_id, l.time_period INTO account_no, amount, branch_id, time_period FROM  loans l WHERE l.loan_id = loan_id; 
+
+        INSERT INTO transaction_details (account_no, amount, withdraw, detail, date_time, teller, branch_id) values (account_no, amount, 2, "Loan", today, "loan", branch_id);
+ 
+        SELECT LAST_INSERT_ID() INTO transId;
+   
+        INSERT INTO loan_transactions (transaction_id, loan_id) values (transId, loan_id);
+        INSERT INTO online_loans (loan_id, fd_no) values (loan_id, fd_no);
+      
+        UPDATE accounts a SET a.balance = (a.balance + amount) WHERE a.account_no = account_no;
+	
+        SET next_month = (SELECT DATE_ADD(CURRENT_DATE(), INTERVAL 1 MONTH));
+ 
+        WHILE(i <= time_period) DO
+            INSERT INTO loan_installment_banks (loan_id, amount, due_date, paid_date, installment_status) values (loan_id, amount, next_month, null, 0);
+            SET next_month = (SELECT DATE_ADD(next_month, INTERVAL 1 MONTH));
+            SET i = i + 1;           
+		END WHILE;
+ 
+        SELECT 'OK' as message;
+        
+    COMMIT;
+END$$
+DELIMITER ;
+
+
+-- check owner fd
+DELIMITER $$
+CREATE FUNCTION checkFdOwner(
+	fd_no BIGINT,
+    customer_id INT 
+) 
+RETURNS VARCHAR(20)
+DETERMINISTIC
+BEGIN
+    DECLARE res VARCHAR(20);
+    DECLARE customer FLOAT;
+    SELECT 
+		c.customer_id INTO customer
+    FROM 
+		fixed_deposits fd
+    LEFT JOIN accounts a USING(account_no)
+    LEFT JOIN customers c ON  c.customer_id = a.primary_customer_id
+	WHERE fd.fd_no = fd_no;
+    
+    IF customer_id <=> customer THEN
+        SET res = "OK";
+    ELSE
+        SET res = "You are not own this FD!";
+	END IF;
+	RETURN (res);
+END$$
+DELIMITER ;
+
 
 
 DELIMITER $$
@@ -653,6 +735,10 @@ CREATE TABLE fixed_deposits(
     PRIMARY KEY (fd_no)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='fixed_deposits';
 ALTER TABLE fixed_deposits AUTO_INCREMENT=11201003969;
+
+INSERT INTO fixed_deposits (fd_no, account_no, amount, date_opened, plan_id, fd_status) values 
+(22601003929, 5000.00, '2021-02-13 00:20:38', 1, 0),
+(22601003934, 5000.00, '2021-02-13 00:20:38', 1, 0);
 
 -- checkk minmum balance when request online loan
 DELIMITER $$

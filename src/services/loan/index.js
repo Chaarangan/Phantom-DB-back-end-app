@@ -54,7 +54,7 @@ const createLoanRequest = async (req, res, next) => {
             amount = req.body.amount,
             branch_id = req.user.branch_id,
             time_period = req.body.time_period,
-            request_date = date.format(now, 'YYYY-MM-DD HH:mm:ss GMT+0530'),            
+            request_date = date.format(now, 'YYYY-MM-DD HH:mm:ss GMT+0530'),
             requested_by = req.user.employee_id;
 
         await sequelize.query("SELECT calculateInstallment(?,?,?) as installment", { replacements: [amount, loan_type, time_period] }).then(
@@ -67,6 +67,62 @@ const createLoanRequest = async (req, res, next) => {
                         next();
                     }
                 );
+            });
+    } catch (e) {
+        console.log(e);
+        return res.status(400).json({ status: 400, response: "Bad Request!" });
+    }
+};
+
+
+const createOnlineLoanRequest = async (req, res, next) => {
+    try {
+        const loan_type = req.body.loan_type,
+            fd_no = req.body.fd_no,
+            amount = req.body.amount,
+            branch_id = req.body.branch_id,
+            time_period = req.body.time_period,
+            request_date = date.format(now, 'YYYY-MM-DD HH:mm:ss GMT+0530'),
+            requested_by = req.user.customer_id;
+
+        await sequelize.query("SELECT * from fixed_deposits WHERE fd_no = ?", { replacements: [fd_no] }).then(
+            async (foundFd) => {
+                if (foundFd[0].length > 0) {
+                    const account_no = foundFd[0][0].account_no;
+                    await sequelize.query("SELECT checkMinFdBalance(?,?) as res", { replacements: [fd_no, amount] }).then(
+                        async (foundRes) => {
+                            const ress = foundRes[0][0].res;
+                            if (ress == "OK") {
+                                await sequelize.query("SELECT calculateInstallment(?,?,?) as installment", { replacements: [amount, loan_type, time_period] }).then(
+                                    async (foundInstallment) => {
+
+                                        const installment = foundInstallment[0][0].installment;
+                                        await sequelize.query("INSERT INTO loans SET loan_type = ?, account_no = ?, amount = ?, branch_id = ?, time_period = ?, installment = ?, requested_date = ?, requested_by = ?, loan_status = ?", { replacements: [loan_type, account_no, amount, branch_id, time_period, installment, request_date, requested_by, 1] }).then(
+                                            async (results) => {
+                                                const loan_id = results[0];
+                                                await sequelize.query("CALL approveOnlineLoan(" + loan_id + "," + fd_no + ")").then(
+                                                    async (results) => {
+                                                        if (results[0].message == "OK") {
+                                                            req.message = "Transfered Successfully!";
+                                                            next();
+                                                        }
+                                                        else {
+                                                            return res.status(404).json({ response: "Failed!", status: 404 });
+                                                        }
+                                                    }
+                                                );                                                
+                                            }
+                                        );
+                                    });
+                            }
+                            else {
+                                return res.status(400).json({ status: 404, response: "Not Eligible" });
+                            }
+                        });
+                }
+                else {
+                    return res.status(404).json({ status: 404, response: "Not found FD account!" });
+                }
             });
     } catch (e) {
         console.log(e);
@@ -179,4 +235,4 @@ const getRejectedLoans = async (req, res, next) => {
     }
 };
 
-module.exports = { createLoanRequest, getRequestedLoans, approveLoanRequest, getBankVisitLoans, getLoans, getOnlineLoans, rejectLoanRequest, getRejectedLoans }
+module.exports = { createOnlineLoanRequest, createLoanRequest, getRequestedLoans, approveLoanRequest, getBankVisitLoans, getLoans, getOnlineLoans, rejectLoanRequest, getRejectedLoans }

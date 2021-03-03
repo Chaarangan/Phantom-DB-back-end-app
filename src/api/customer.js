@@ -17,6 +17,10 @@ const {
 const {
     withdrawAtm
 } = require("../services/atm");
+const {
+    createOnlineLoanRequest
+} = require("../services/loan");
+
 
 // ========= Auth ======= //
 router.post("/login", login, async(req, res) => {
@@ -37,6 +41,11 @@ router.post("/transactions/new", verifyToken, isCustomer, createOnlineTransactio
 
 // ========= ATM ======= //
 router.post("/atm/new", verifyToken, isCustomer, withdrawAtm, async(req, res) => {
+    res.status(200).json({response: req.message, status : 200});
+});
+
+// ========= Loans ======= //
+router.post("/loans/new", verifyToken, isCustomer, createOnlineLoanRequest, async(req, res) => {
     res.status(200).json({response: req.message, status : 200});
 });
 
